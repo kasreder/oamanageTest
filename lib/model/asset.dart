@@ -1,4 +1,7 @@
 // lib/model/asset.dart
+
+const _unset = Object();
+
 class Asset {
   /// 오름차순 순번 (문자열로 보관하지만 "1","2","3"... 형태)
   final String id;
@@ -25,6 +28,8 @@ class Asset {
   String? locationDrawingId;
   int? locationRow;
   int? locationCol;
+  /// 도면 파일명(배경)
+  String? locationDrawingFile;
 
   DateTime createdAt;
   DateTime updatedAt;
@@ -40,6 +45,7 @@ class Asset {
     this.locationDrawingId,
     this.locationRow,
     this.locationCol,
+    this.locationDrawingFile,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -54,6 +60,7 @@ class Asset {
     String? locationDrawingId,
     int? locationRow,
     int? locationCol,
+    Object? locationDrawingFile = _unset,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -68,6 +75,9 @@ class Asset {
       locationDrawingId: locationDrawingId ?? this.locationDrawingId,
       locationRow: locationRow ?? this.locationRow,
       locationCol: locationCol ?? this.locationCol,
+      locationDrawingFile: locationDrawingFile == _unset
+          ? this.locationDrawingFile
+          : locationDrawingFile as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

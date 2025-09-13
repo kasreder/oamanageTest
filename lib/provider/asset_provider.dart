@@ -26,6 +26,7 @@ class AssetProvider extends ChangeNotifier {
     required String? drawingId, // null이면 위치 해제
     int? row,
     int? col,
+    String? drawingFile,
     required DrawingProvider drawingProvider,
   }) async {
     // 기존 위치(제거 목적)
@@ -37,6 +38,7 @@ class AssetProvider extends ChangeNotifier {
       drawingId: drawingId,
       row: row,
       col: col,
+      drawingFile: drawingFile ?? (drawingId == null ? null : before?.locationDrawingFile),
     );
     items = repo.list();
     notifyListeners();

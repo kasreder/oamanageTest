@@ -43,10 +43,14 @@ class AssetDetailScreen extends StatelessWidget {
               if (hasLoc)
                 FilledButton.icon(
                   onPressed: () async {
-                    // 도면 배경이 없으면 로드 후 이동
+                    // 도면 배경이 없으면 자산에 지정된 파일을 로드 후 이동
                     final d = dp.getById(asset.locationDrawingId!);
                     if (d != null) {
-                      await loadDrawingImageIfNeeded(dp, d);
+                      await loadDrawingImageIfNeeded(
+                        dp,
+                        d,
+                        fileName: asset.locationDrawingFile,
+                      );
                     }
                     if (context.mounted) {
                       context.push('/drawing/${asset.locationDrawingId}/map');
@@ -117,11 +121,13 @@ class _LocationDialogState extends State<_LocationDialog> {
   String? _drawingId;
   final _row = TextEditingController(text: '0');
   final _col = TextEditingController(text: '0');
+  final _file = TextEditingController();
 
   @override
   void dispose() {
     _row.dispose();
     _col.dispose();
+    _file.dispose();
     super.dispose();
   }
 
@@ -147,6 +153,11 @@ class _LocationDialogState extends State<_LocationDialog> {
               ))
                   .toList(),
               onChanged: (v) => setState(() => _drawingId = v),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _file,
+              decoration: const InputDecoration(labelText: '도면 파일명'),
             ),
             const SizedBox(height: 8),
             Row(
@@ -187,6 +198,7 @@ class _LocationDialogState extends State<_LocationDialog> {
               drawingId: _drawingId,
               row: _drawingId == null ? null : r,
               col: _drawingId == null ? null : c,
+              drawingFile: _file.text.isEmpty ? null : _file.text,
               drawingProvider: context.read<DrawingProvider>(),
             );
             if (context.mounted) Navigator.pop(context);

@@ -18,16 +18,21 @@ const Map<String, String> kDrawingImageFiles = {
 /// Ensures that [drawing] has its background image loaded.
 ///
 /// If the image bytes are already present this function does nothing. When the
-/// image is missing and an asset file is registered for the drawing id, the
-/// bytes are loaded from the bundle and stored via [DrawingProvider].
-Future<void> loadDrawingImageIfNeeded(DrawingProvider dp, Drawing drawing) async {
+/// image is missing and an asset file is registered for the drawing id or
+/// supplied via [fileName], the bytes are loaded from the bundle and stored via
+/// [DrawingProvider].
+Future<void> loadDrawingImageIfNeeded(
+  DrawingProvider dp,
+  Drawing drawing, {
+  String? fileName,
+}) async {
   if (drawing.imageBytes != null && drawing.imageBytes!.isNotEmpty) return;
-  final fileName = kDrawingImageFiles[drawing.id];
-  if (fileName == null) return;
+  final name = fileName ?? kDrawingImageFiles[drawing.id];
+  if (name == null) return;
   try {
-    final ByteData data = await rootBundle.load('$kDrawingImageAssetPath$fileName');
+    final ByteData data = await rootBundle.load('$kDrawingImageAssetPath$name');
     final Uint8List bytes = data.buffer.asUint8List();
-    await dp.setImageBytes(id: drawing.id, bytes: bytes, fileName: fileName);
+    await dp.setImageBytes(id: drawing.id, bytes: bytes, fileName: name);
   } catch (e) {
     debugPrint('Failed to load drawing image: $e');
   }
