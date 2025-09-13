@@ -1,12 +1,11 @@
 // lib/view/drawing/drawing_screen.dart
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../provider/drawing_provider.dart';
 import '../../model/drawing.dart';
+import '../../util/drawing_image_loader.dart';
 
 /// 도면 목록 화면
 /// - "열기" 버튼을 누르면:
@@ -14,11 +13,6 @@ import '../../model/drawing.dart';
 ///   2) 맵 화면(/drawing/:id/map)으로 이동 → 배경 + 격자 표시
 class DrawingScreen extends StatelessWidget {
   const DrawingScreen({super.key});
-
-  // 👉 현재 요구대로 고정 파일명 사용. 나중에 항목별로 다르게 하고 싶으면
-  //    d.building/floor/title 등을 조합해서 파일명을 만들면 된다.
-  static const String kMapImageFileName = 'conco_11F_A.jpg';
-  static const String kMapImageAssetPath = 'lib/asset/locationmap/';
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +53,11 @@ class DrawingScreen extends StatelessWidget {
                           children: [
                             OutlinedButton.icon(
                               icon: const Icon(Icons.image),
-                              label: const Text('열기'),// (열기 버튼) 배경 적용 후 맵 이동
+                              label: const Text('열기'), // 배경 적용 후 맵 이동
                               onPressed: () async {
-                                await _applyBackgroundFromAsset(context, d);
+                                await loadDrawingImageIfNeeded(dp, d);
                                 if (context.mounted) {
-                                  context.push('/drawing/${d.id}/map'); // ✅ pushNamed → push (go_router)
+                                  context.push('/drawing/${d.id}/map');
                                 }
                               },
                             ),
@@ -86,30 +80,6 @@ class DrawingScreen extends StatelessWidget {
     );
   }
 
-  /// lib/asset/locationmap/<kMapImageFileName> 를 읽어와서
-  /// DrawingProvider에 이미지 바이트를 설정한다.
-  Future<void> _applyBackgroundFromAsset(BuildContext context, Drawing d) async {
-    final dp = context.read<DrawingProvider>();
-
-    try {
-      final String assetPath = '$kMapImageAssetPath$kMapImageFileName';
-
-      // assets 에 등록된 파일에서 바이트 로드
-      final ByteData data = await rootBundle.load(assetPath);
-      final Uint8List bytes = data.buffer.asUint8List();
-
-      // Provider에 이미지 적용 (아래 메서드명은 기존 구현에 맞춰 사용)
-      // - 만약 setImageBytes가 없다면, DrawingProvider에 해당 메서드를 추가해 주세요.
-      //   예) Future<void> setImageBytes({required String id, required Uint8List bytes})
-      await dp.setImageBytes(id: d.id, bytes: bytes);
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('배경 이미지 로드 실패: $e')),
-        );
-      }
-    }
-  }
 }
 
 class _Legend extends StatelessWidget {

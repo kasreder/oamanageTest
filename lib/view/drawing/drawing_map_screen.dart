@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../provider/drawing_provider.dart';
 import '../../provider/asset_provider.dart';
 import '../../model/drawing.dart';
+import '../../util/drawing_image_loader.dart';
 
 // (선택) 격자/테두리 색만 모아두고 싶다면 상수로 둡니다.
 const _kGridColor = Color(0x18000000);   // 검정(연한)
@@ -24,6 +25,16 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
   // ✅ 배율 상태(드롭다운)
   double _scale = 1.0;
   final List<double> _scaleOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.25, 2.5, 3.0];
+
+  @override
+  void initState() {
+    super.initState();
+    final dp = context.read<DrawingProvider>();
+    final d = dp.getById(widget.drawingId);
+    if (d != null) {
+      loadDrawingImageIfNeeded(dp, d);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
