@@ -1,0 +1,2 @@
+/Users/kview/StudioProjects/oamanger/android/app/.cxx/RelWithDebInfo/5h62u6e3/x86/CMakeFiles/edit_cache.dir
+/Users/kview/StudioProjects/oamanger/android/app/.cxx/RelWithDebInfo/5h62u6e3/x86/CMakeFiles/rebuild_cache.dir
