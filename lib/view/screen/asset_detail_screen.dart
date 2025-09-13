@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../provider/asset_provider.dart';
 import '../../provider/drawing_provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../util/drawing_image_loader.dart';
 
 class AssetDetailScreen extends StatelessWidget {
   const AssetDetailScreen({super.key, required this.id});
@@ -41,9 +42,15 @@ class AssetDetailScreen extends StatelessWidget {
             children: [
               if (hasLoc)
                 FilledButton.icon(
-                  onPressed: () {
-                    // 해당 도면으로 이동
-                    context.push('/drawing/${asset.locationDrawingId}/map');
+                  onPressed: () async {
+                    // 도면 배경이 없으면 로드 후 이동
+                    final d = dp.getById(asset.locationDrawingId!);
+                    if (d != null) {
+                      await loadDrawingImageIfNeeded(dp, d);
+                    }
+                    if (context.mounted) {
+                      context.push('/drawing/${asset.locationDrawingId}/map');
+                    }
                   },
                   icon: const Icon(Icons.map),
                   label: const Text('도면에서 보기'),
