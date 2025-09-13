@@ -1,6 +1,7 @@
 // lib/repository/asset_repository.dart
 import 'dart:math';
 import '../model/asset.dart';
+import '../util/drawing_image_loader.dart' show kDrawingImageFiles;
 
 class AssetRepository {
   final List<Asset> _items = [];
@@ -34,6 +35,7 @@ class AssetRepository {
     String? drawingId,
     int? row,
     int? col,
+    String? drawingFile,
   }) {
     final idx = _items.indexWhere((e) => e.id == id);
     if (idx < 0) return null;
@@ -42,6 +44,7 @@ class AssetRepository {
       locationDrawingId: drawingId,
       locationRow: row,
       locationCol: col,
+      locationDrawingFile: drawingFile,
       updatedAt: now,
     );
     return _items[idx];
@@ -139,6 +142,7 @@ class AssetRepository {
         locationDrawingId: drawId,
         locationRow: row,
         locationCol: col,
+        locationDrawingFile: drawId == null ? null : kDrawingImageFiles[drawId],
         createdAt: created,
         updatedAt: updated,
       ));
