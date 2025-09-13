@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// navigation.dart에서 사용하는 더미 Provider
+/// navigation.dart에서 사용하는 더미 Provider1111
 /// 실제 API 연동 전, 화면 전환 시 카운트만 증가시키는 용도
 class ViewCountProvider extends ChangeNotifier {
   int assetCount = 0;

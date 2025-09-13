@@ -77,7 +77,7 @@ class DrawingProvider extends ChangeNotifier {
     return ok;
   }
 
-  /// 파일 선택/업로드 등에서 이미지 붙일 때 사용
+  /// 파일 선택/업로드 등에서 이미지 붙일 때 사용11111
   Future<Drawing?> attachImage({
     required String id,
     required Uint8List bytes,
@@ -88,7 +88,7 @@ class DrawingProvider extends ChangeNotifier {
     return updated;
   }
 
-  /// ✅ drawing_screen.dart 의 "열기" 흐름에서 호출하는 메서드
+  /// ✅ drawing_screen.dart 의 "열기" 흐름에서 호출하는 메서드111111
   /// - 파일명 없이 바이트만 넘어와도 동작하도록 기본 파일명을 넣어줌
   Future<Drawing?> setImageBytes({
     required String id,
