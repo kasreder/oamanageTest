@@ -7,6 +7,9 @@ import '../../provider/drawing_provider.dart';
 import '../../util/drawing_image_loader.dart';
 import '../../model/asset.dart';
 
+String _fmtDate(DateTime? d) =>
+    d == null ? '' : d.toIso8601String().split('T').first;
+
 class AssetDetailScreen extends StatelessWidget {
   const AssetDetailScreen({super.key, required this.id});
   final String id;
