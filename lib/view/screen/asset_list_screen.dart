@@ -77,8 +77,10 @@ class _AssetListScreenState extends State<AssetListScreen> {
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (_, i) {
                       final a = filtered[i];
-                      final hasLoc = a.locationDrawingId != null;
-                      final locText = hasLoc ? '위치: ${a.locationDrawingId} (${a.locationRow}, ${a.locationCol})' : '위치: 미지정';
+                      final hasLoc = a.locationRow != null && a.locationCol != null;
+                      final locText = hasLoc
+                          ? '위치: ${a.building ?? ''}, ${a.floor ?? ''} (${a.locationRow}, ${a.locationCol})'
+                          : '위치: 미지정';
                       return ListTile(
                         leading: const Icon(Icons.inventory_2),
                         title: Text(a.name),

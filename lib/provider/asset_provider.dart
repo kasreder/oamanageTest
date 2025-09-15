@@ -20,6 +20,13 @@ class AssetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Asset? update(Asset a) {
+    final updated = repo.update(a);
+    items = repo.list();
+    notifyListeners();
+    return updated;
+  }
+
   // 자산 위치 변경 + 도면 셀에 동기화
   Future<Asset?> setLocationAndSync({
     required String assetId,
