@@ -40,11 +40,15 @@ class DrawingScreen extends StatelessWidget {
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (_, i) {
                       final d = items[i];
-                      final hasBg = d.imageBytes != null && d.imageBytes!.isNotEmpty;
+                      // 이미지 바이트가 로드되지 않았더라도 파일명이 지정되어 있으면 배경이 있는 것으로 간주
+                      final hasBg = d.imageName != null || kDrawingImageFiles[d.id] != null;
                       return ListTile(
                         leading: CircleAvatar(
                           backgroundColor: hasBg ? Colors.green : Colors.grey.shade300,
-                          child: Icon(hasBg ? Icons.image : Icons.image_not_supported, color: hasBg ? Colors.white : Colors.black38),
+                          child: Icon(
+                            hasBg ? Icons.image : Icons.image_not_supported,
+                            color: hasBg ? Colors.white : Colors.black38,
+                          ),
                         ),
                         title: Text('${d.building} · ${d.floor} · ${d.title}'),
                         subtitle: Text('격자: ${d.gridRows} x ${d.gridCols}'),

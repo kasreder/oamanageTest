@@ -1,7 +1,6 @@
 // lib/repository/asset_repository.dart
 import 'dart:math';
 import '../model/asset.dart';
-import '../util/drawing_image_loader.dart' show kDrawingImageFiles;
 
 class AssetRepository {
   final List<Asset> _items = [];
@@ -58,6 +57,7 @@ class AssetRepository {
     final vendors = ['Samsung', 'LG', 'Siemens', 'FANUC', 'Omron', 'Keyence', 'Bosch', 'Panasonic'];
     final models  = ['X100', 'M450', 'S2-Pro', 'VX-9', 'HF-220', 'Prime-7', 'Neo-3', 'Edge-11'];
     final cats    = ['생산설비', 'IT장비', '품질장비', '공용비품', '안전설비'];
+    const List<String?> bgFiles = ['hankyung_16F_A.png', 'conco_11F_A.jpg', null];
 
     // 최근 365일 내 랜덤 생성일
     DateTime _randCreated() {
@@ -130,6 +130,7 @@ class AssetRepository {
 
       final created = _randCreated();
       final updated = _randUpdatedAfter(created);
+      final drawFile = drawId == null ? null : bgFiles[rnd.nextInt(bgFiles.length)];
 
       _items.add(Asset(
         id: id,
@@ -142,7 +143,7 @@ class AssetRepository {
         locationDrawingId: drawId,
         locationRow: row,
         locationCol: col,
-        locationDrawingFile: drawId == null ? null : kDrawingImageFiles[drawId],
+        locationDrawingFile: drawFile,
         createdAt: created,
         updatedAt: updated,
       ));
