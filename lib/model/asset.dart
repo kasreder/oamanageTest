@@ -24,6 +24,33 @@ class Asset {
   /// 공급사/제조사
   String vendor;
 
+  /// 네트워크 구분
+  String? network;
+
+  /// 실물 점검일
+  DateTime? physicalCheckDate;
+
+  /// 검수일자
+  DateTime? confirmationDate;
+
+  /// 일반 비고 (100자 이내)
+  String? normalComment;
+
+  /// OA 비고 (100자 이내)
+  String? oaComment;
+
+  /// MAC 주소
+  String? macAddress;
+
+  /// 건물명(선택)
+  String? building;
+
+  /// 층(선택)
+  String? floor;
+
+  /// 담당자명(선택)
+  String? memberName;
+
   /// 위치(선택)
   String? locationDrawingId;
   int? locationRow;
@@ -42,6 +69,15 @@ class Asset {
     required this.serialNumber,
     required this.modelName,
     required this.vendor,
+    this.network,
+    this.physicalCheckDate,
+    this.confirmationDate,
+    this.normalComment,
+    this.oaComment,
+    this.macAddress,
+    this.building,
+    this.floor,
+    this.memberName,
     this.locationDrawingId,
     this.locationRow,
     this.locationCol,
@@ -57,6 +93,15 @@ class Asset {
     String? serialNumber,
     String? modelName,
     String? vendor,
+    String? network,
+    DateTime? physicalCheckDate,
+    DateTime? confirmationDate,
+    String? normalComment,
+    String? oaComment,
+    String? macAddress,
+    String? building,
+    String? floor,
+    String? memberName,
     String? locationDrawingId,
     int? locationRow,
     int? locationCol,
@@ -72,6 +117,15 @@ class Asset {
       serialNumber: serialNumber ?? this.serialNumber,
       modelName: modelName ?? this.modelName,
       vendor: vendor ?? this.vendor,
+      network: network ?? this.network,
+      physicalCheckDate: physicalCheckDate ?? this.physicalCheckDate,
+      confirmationDate: confirmationDate ?? this.confirmationDate,
+      normalComment: normalComment ?? this.normalComment,
+      oaComment: oaComment ?? this.oaComment,
+      macAddress: macAddress ?? this.macAddress,
+      building: building ?? this.building,
+      floor: floor ?? this.floor,
+      memberName: memberName ?? this.memberName,
       locationDrawingId: locationDrawingId ?? this.locationDrawingId,
       locationRow: locationRow ?? this.locationRow,
       locationCol: locationCol ?? this.locationCol,
