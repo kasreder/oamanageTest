@@ -20,10 +20,15 @@ class AssetDetailScreen extends StatelessWidget {
       return const Center(child: Text('자산을 찾을 수 없습니다.'));
     }
 
-    final hasLoc = asset.locationDrawingId != null;
-    final locStr = hasLoc
-        ? '${asset.locationDrawingId}  (${asset.locationRow}, ${asset.locationCol})'
-        : '미지정';
+    final hasLoc = asset.locationRow != null && asset.locationCol != null;
+    String locStr;
+    if (hasLoc) {
+      final building = asset.building ?? '';
+      final floor = asset.floor ?? '';
+      locStr = '$building, $floor (${asset.locationRow}, ${asset.locationCol})';
+    } else {
+      locStr = '미지정';
+    }
 
     return Padding(
       padding: const EdgeInsets.all(16),
