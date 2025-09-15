@@ -8,11 +8,12 @@ import '../../model/drawing.dart';
 import '../../util/drawing_image_loader.dart';
 
 // (선택) 격자/테두리 색만 모아두고 싶다면 상수로 둡니다.
-const _kGridColor = Color(0x18000000);   // 검정(연한)
+const _kGridColor = Color(0x18000000); // 검정(연한)
 const _kBorderColor = Color(0xFF000000); // 검정
 
 class DrawingMapScreen extends StatefulWidget {
   const DrawingMapScreen({super.key, required this.drawingId});
+
   final String drawingId;
 
   @override
@@ -75,9 +76,9 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
                 value: _scale,
                 items: _scaleOptions
                     .map((s) => DropdownMenuItem(
-                  value: s,
-                  child: Text('${(s * 100).toInt()}%'),
-                ))
+                          value: s,
+                          child: Text('${(s * 100).toInt()}%'),
+                        ))
                     .toList(),
                 onChanged: (v) => setState(() => _scale = v ?? _scale),
               ),
@@ -130,17 +131,17 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
         child: assets.isEmpty
             ? const Center(child: Text('배치된 자산이 없습니다.'))
             : ListView.separated(
-          itemCount: assets.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
-          itemBuilder: (_, i) {
-            final a = assets[i];
-            return ListTile(
-              leading: const Icon(Icons.inventory_2),
-              title: Text(a.name),
-              subtitle: Text('코드: ${a.code} · 분류: ${a.category}'),
-            );
-          },
-        ),
+                itemCount: assets.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (_, i) {
+                  final a = assets[i];
+                  return ListTile(
+                    leading: const Icon(Icons.inventory_2),
+                    title: Text(a.name),
+                    subtitle: Text('코드: ${a.code} · 분류: ${a.category}'),
+                  );
+                },
+              ),
       ),
     );
   }
@@ -148,6 +149,7 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
 
 class _GridControl extends StatefulWidget {
   const _GridControl({required this.d});
+
   final Drawing d;
 
   @override
@@ -161,45 +163,45 @@ class _GridControlState extends State<_GridControl> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      // children: [
-      //   const Text('행'),
-      //   SizedBox(
-      //     width: 56,
-      //     child: TextFormField(
-      //       initialValue: rows.toString(),
-      //       textAlign: TextAlign.center,
-      //       keyboardType: TextInputType.number,
-      //       onFieldSubmitted: (_) => _apply(context),
-      //       onChanged: (v) => rows = int.tryParse(v) ?? rows,
-      //     ),
-      //   ),
-      //   const SizedBox(width: 8),
-      //   const Text('열'),
-      //   SizedBox(
-      //     width: 56,
-      //     child: TextFormField(
-      //       initialValue: cols.toString(),
-      //       textAlign: TextAlign.center,
-      //       keyboardType: TextInputType.number,
-      //       onFieldSubmitted: (_) => _apply(context),
-      //       onChanged: (v) => cols = int.tryParse(v) ?? cols,
-      //     ),
-      //   ),
-      //   const SizedBox(width: 8),
-      //   FilledButton(
-      //     onPressed: () => _apply(context),
-      //     child: const Text('적용'),
-      //   ),
-      // ],
-    );
+        // children: [
+        //   const Text('행'),
+        //   SizedBox(
+        //     width: 56,
+        //     child: TextFormField(
+        //       initialValue: rows.toString(),
+        //       textAlign: TextAlign.center,
+        //       keyboardType: TextInputType.number,
+        //       onFieldSubmitted: (_) => _apply(context),
+        //       onChanged: (v) => rows = int.tryParse(v) ?? rows,
+        //     ),
+        //   ),
+        //   const SizedBox(width: 8),
+        //   const Text('열'),
+        //   SizedBox(
+        //     width: 56,
+        //     child: TextFormField(
+        //       initialValue: cols.toString(),
+        //       textAlign: TextAlign.center,
+        //       keyboardType: TextInputType.number,
+        //       onFieldSubmitted: (_) => _apply(context),
+        //       onChanged: (v) => cols = int.tryParse(v) ?? cols,
+        //     ),
+        //   ),
+        //   const SizedBox(width: 8),
+        //   FilledButton(
+        //     onPressed: () => _apply(context),
+        //     child: const Text('적용'),
+        //   ),
+        // ],
+        );
   }
 
-  // Future<void> _apply(BuildContext context) async {
-  //   // 제한 해제: 큰 값도 허용
-  //   rows = rows.clamp(1, 1000000);
-  //   cols = cols.clamp(1, 1000000);
-  //   await context.read<DrawingProvider>().setGrid(id: widget.d.id, rows: rows, cols: cols);
-  // }
+// Future<void> _apply(BuildContext context) async {
+//   // 제한 해제: 큰 값도 허용
+//   rows = rows.clamp(1, 1000000);
+//   cols = cols.clamp(1, 1000000);
+//   await context.read<DrawingProvider>().setGrid(id: widget.d.id, rows: rows, cols: cols);
+// }
 }
 
 class _DrawingCanvas extends StatelessWidget {
@@ -352,7 +354,7 @@ class _GridOverlayState extends State<_GridOverlay> {
             if (r < 0 || c < 0 || r >= rows || c >= cols) return;
 
             final left = c * cellW + cellW / 2;
-            final top  = r * cellH + cellH / 2;
+            final top = r * cellH + cellH / 2;
 
             markers.add(Positioned(
               left: left - 14,
@@ -370,7 +372,8 @@ class _GridOverlayState extends State<_GridOverlay> {
         // 6) InteractiveViewer: 배율/이동(컨트롤러 연동)
         return Center(
           child: InteractiveViewer(
-            transformationController: _tc, // ✅ 배율 연동 포인트
+            transformationController: _tc,
+            // ✅ 배율 연동 포인트
             constrained: false,
             boundaryMargin: const EdgeInsets.all(300),
             minScale: widget.minScale,
@@ -450,8 +453,7 @@ class _GridOverlayState extends State<_GridOverlay> {
 
     final key = 'r${row}c$col';
     final currentIds = List<String>.from(d.cellAssets[key] ?? const []);
-    final currentAssets =
-    currentIds.map((id) => ap.getById(id)).whereType<dynamic>().toList();
+    final currentAssets = currentIds.map((id) => ap.getById(id)).whereType<dynamic>().toList();
 
     showModalBottomSheet(
       context: context,
@@ -460,7 +462,9 @@ class _GridOverlayState extends State<_GridOverlay> {
       builder: (sheetContext) {
         return Padding(
           padding: EdgeInsets.only(
-            left: 12, right: 12, top: 12,
+            left: 12,
+            right: 12,
+            top: 12,
             bottom: MediaQuery.of(sheetContext).padding.bottom + 12,
           ),
           child: Column(
@@ -491,9 +495,12 @@ class _GridOverlayState extends State<_GridOverlay> {
                           onPressed: () async {
                             await dp.removeAssetFromCell(id: d.id, row: row, col: col, assetId: a.id);
                             await sheetContext.read<AssetProvider>().setLocationAndSync(
-                              assetId: a.id, drawingId: null, row: null, col: null,
-                              drawingProvider: dp,
-                            );
+                                  assetId: a.id,
+                                  drawingId: null,
+                                  row: null,
+                                  col: null,
+                                  drawingProvider: dp,
+                                );
                             if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                             _openCellDialog(context, dp.getById(d.id)!, row, col);
                           },
@@ -508,9 +515,12 @@ class _GridOverlayState extends State<_GridOverlay> {
                   final selected = await _openAssetPicker(sheetContext, ap);
                   if (selected == null) return;
                   await sheetContext.read<AssetProvider>().setLocationAndSync(
-                    assetId: selected.id, drawingId: d.id, row: row, col: col,
-                    drawingProvider: dp,
-                  );
+                        assetId: selected.id,
+                        drawingId: d.id,
+                        row: row,
+                        col: col,
+                        drawingProvider: dp,
+                      );
                   if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                   _openCellDialog(context, dp.getById(d.id)!, row, col);
                 },
@@ -524,8 +534,7 @@ class _GridOverlayState extends State<_GridOverlay> {
     );
   }
 
-  Future<dynamic /*Asset?*/ > _openAssetPicker(
-      BuildContext context, AssetProvider ap) async {
+  Future<dynamic /*Asset?*/ > _openAssetPicker(BuildContext context, AssetProvider ap) async {
     final items = ap.items;
     return showDialog(
       context: context,
@@ -538,18 +547,18 @@ class _GridOverlayState extends State<_GridOverlay> {
           child: items.isEmpty
               ? const Center(child: Text('자산 데이터가 없습니다.'))
               : ListView.separated(
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (_, i) {
-              final a = items[i];
-              return ListTile(
-                leading: const Icon(Icons.inventory_2),
-                title: Text(a.name),
-                subtitle: Text('코드: ${a.code} · 분류: ${a.category}'),
-                onTap: () => Navigator.of(dialogContext).pop(a),
-              );
-            },
-          ),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (_, i) {
+                    final a = items[i];
+                    return ListTile(
+                      leading: const Icon(Icons.inventory_2),
+                      title: Text(a.name),
+                      subtitle: Text('코드: ${a.code} · 분류: ${a.category}'),
+                      onTap: () => Navigator.of(dialogContext).pop(a),
+                    );
+                  },
+                ),
         ),
         actions: [
           TextButton(
@@ -564,6 +573,7 @@ class _GridOverlayState extends State<_GridOverlay> {
 
 class _AssetMarker extends StatelessWidget {
   const _AssetMarker({required this.count, required this.onTap});
+
   final int count;
   final VoidCallback onTap;
 
@@ -640,11 +650,7 @@ class _GridPainterProportional extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _GridPainterProportional old) =>
-      old.rows != rows ||
-          old.cols != cols ||
-          old.canvasW != canvasW ||
-          old.canvasH != canvasH;
+  bool shouldRepaint(covariant _GridPainterProportional old) => old.rows != rows || old.cols != cols || old.canvasW != canvasW || old.canvasH != canvasH;
 }
 
 /// 탭 → (r,c) 환산: 캔버스 크기를 행/열로 균등 분할해서 역산

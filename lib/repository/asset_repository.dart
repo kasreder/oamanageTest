@@ -1,14 +1,13 @@
 // lib/repository/asset_repository.dart
 import 'dart:math';
 import '../model/asset.dart';
-import '../util/drawing_image_loader.dart' show kDrawingImageFiles;
 
 class AssetRepository {
   final List<Asset> _items = [];
   int _idCounter = 0; // 오름차순 순번
 
   AssetRepository() {
-    _seed10();
+    _seed20();
   }
 
   // ───────────────────────────────────────────────────────────
@@ -53,11 +52,19 @@ class AssetRepository {
   // ───────────────────────────────────────────────────────────
   // Seed & Helpers
 
-  void _seed10() {
+  void _seed20() {
     final rnd = Random();
     final vendors = ['Samsung', 'LG', 'Siemens', 'FANUC', 'Omron', 'Keyence', 'Bosch', 'Panasonic'];
     final models  = ['X100', 'M450', 'S2-Pro', 'VX-9', 'HF-220', 'Prime-7', 'Neo-3', 'Edge-11'];
-    final cats    = ['생산설비', 'IT장비', '품질장비', '공용비품', '안전설비'];
+    final cats2   = ['생산설비', 'IT장비', '품질장비', '공용비품', '안전설비'];
+    final cats1   = ['모니터', '프린터', '데스크탑', '노트북', '태블릿', '스캐너', 'Test폰', '기타'];
+    final buildings = ['콘코디언', '한경경제신문사', '본사', '센터', 'CRM', null];
+    final floors = [
+      'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1', 'L',
+      for (var i = 1; i <= 22; i++) 'F$i',
+    ];
+    const List<String?> bgFiles = ['hankyung_16F_A.png', 'conco_11F_A.jpg', null];
+    final members = ['차두리', '강남길', '김유정', '김소연', '이나영', null];
 
     // 최근 365일 내 랜덤 생성일
     DateTime _randCreated() {
@@ -101,33 +108,35 @@ class AssetRepository {
       return _idCounter.toString();
     }
 
-    // 샘플 10개
+    // 기본 10개 프리셋
     final presets = [
-      ('프레스기 A', '생산설비', 'D6', 2, 3),
-      ('프레스기 B', '생산설비', 'D6', 4, 7),
-      ('컨베이어 1호', '생산설비', 'D5', 1, 5),
-      ('스위치 24P',  'IT장비',  'D2', 0, 10),
-      ('무선 AP-동측', 'IT장비', 'D1', 3, 2),
-      ('마이크로미터', '품질장비', null, null, null),
-      ('캘리퍼스',     '품질장비', 'D3', 6, 8),
-      ('냉장고',       '공용비품', null, null, null),
-      ('에어컨-사무동', '공용비품', 'D2', 2, 14),
-      ('소화전 펌프',  '안전설비', 'D4', 10, 10),
+      ('프레스기 A', '생산설비'),
+      ('프레스기 B', '생산설비'),
+      ('컨베이어 1호', '생산설비'),
+      ('스위치 24P', 'IT장비'),
+      ('무선 AP-동측', 'IT장비'),
+      ('마이크로미터', '품질장비'),
+      ('캘리퍼스', '품질장비'),
+      ('냉장고', '공용비품'),
+      ('에어컨-사무동', '공용비품'),
+      ('소화전 펌프', '안전설비'),
     ];
 
     for (final p in presets) {
-      final id     = _nextId();
-      final code   = _genCode();
-      final name   = p.$1;
-      final cat    = p.$2;
-      final drawId = p.$3;
-      final row    = p.$4;
-      final col    = p.$5;
-
+      final id = _nextId();
+      final code = _genCode();
+      final name = p.$1;
+      final cat = p.$2;
       final vendor = vendors[rnd.nextInt(vendors.length)];
-      final model  = models[rnd.nextInt(models.length)];
-      final sn     = _serial();
-
+      final model = models[rnd.nextInt(models.length)];
+      final sn = _serial();
+      final building = buildings[rnd.nextInt(buildings.length)];
+      final floor = floors[rnd.nextInt(floors.length)];
+      final member = members[rnd.nextInt(members.length)];
+      final drawFile = bgFiles[rnd.nextInt(bgFiles.length)];
+      final drawId = drawFile == null ? null : 'D${1 + rnd.nextInt(8)}';
+      final row = drawFile == null ? null : rnd.nextInt(10);
+      final col = drawFile == null ? null : rnd.nextInt(10);
       final created = _randCreated();
       final updated = _randUpdatedAfter(created);
 
@@ -139,10 +148,53 @@ class AssetRepository {
         serialNumber: sn,
         modelName: model,
         vendor: vendor,
+        building: building,
+        floor: floor,
+        memberName: member,
         locationDrawingId: drawId,
         locationRow: row,
         locationCol: col,
-        locationDrawingFile: drawId == null ? null : kDrawingImageFiles[drawId],
+        locationDrawingFile: drawFile,
+        createdAt: created,
+        updatedAt: updated,
+      ));
+    }
+
+    // 추가 10개 랜덤 생성
+    for (int i = 0; i < 10; i++) {
+      final id = _nextId();
+      final code = _genCode();
+      final cat1 = cats1[rnd.nextInt(cats1.length)];
+      final cat2 = cats2[rnd.nextInt(cats2.length)];
+      final name = '$cat1-$id';
+      final vendor = vendors[rnd.nextInt(vendors.length)];
+      final model = models[rnd.nextInt(models.length)];
+      final sn = _serial();
+      final building = buildings[rnd.nextInt(buildings.length)];
+      final floor = floors[rnd.nextInt(floors.length)];
+      final member = members[rnd.nextInt(members.length)];
+      final drawFile = bgFiles[rnd.nextInt(bgFiles.length)];
+      final drawId = drawFile == null ? null : 'D${1 + rnd.nextInt(8)}';
+      final row = drawFile == null ? null : rnd.nextInt(10);
+      final col = drawFile == null ? null : rnd.nextInt(10);
+      final created = _randCreated();
+      final updated = _randUpdatedAfter(created);
+
+      _items.add(Asset(
+        id: id,
+        code: code,
+        name: name,
+        category: cat2,
+        serialNumber: sn,
+        modelName: model,
+        vendor: vendor,
+        building: building,
+        floor: floor,
+        memberName: member,
+        locationDrawingId: drawId,
+        locationRow: row,
+        locationCol: col,
+        locationDrawingFile: drawFile,
         createdAt: created,
         updatedAt: updated,
       ));

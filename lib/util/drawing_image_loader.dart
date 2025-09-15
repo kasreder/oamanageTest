@@ -12,6 +12,11 @@ const String kDrawingImageAssetPath = 'lib/asset/locationmap/';
 /// When more drawings are added, register the corresponding file here.
 const Map<String, String> kDrawingImageFiles = {
   'D1': 'conco_11F_A.jpg',
+  'D2': 'conco_11F_A.jpg',
+  'D3': 'conco_11F_A.jpg',
+  'D4': 'hankyung_16F_A.png',
+  'D5': 'hankyung_16F_A.png',
+  'D6': 'hankyung_16F_A.png',
   // Add additional mappings like 'D2': 'some_file.jpg'
 };
 
