@@ -24,6 +24,15 @@ class Asset {
   /// 공급사/제조사
   String vendor;
 
+  /// 건물명(선택)
+  String? building;
+
+  /// 층(선택)
+  String? floor;
+
+  /// 담당자명(선택)
+  String? memberName;
+
   /// 위치(선택)
   String? locationDrawingId;
   int? locationRow;
@@ -42,6 +51,9 @@ class Asset {
     required this.serialNumber,
     required this.modelName,
     required this.vendor,
+    this.building,
+    this.floor,
+    this.memberName,
     this.locationDrawingId,
     this.locationRow,
     this.locationCol,
@@ -57,6 +69,9 @@ class Asset {
     String? serialNumber,
     String? modelName,
     String? vendor,
+    String? building,
+    String? floor,
+    String? memberName,
     String? locationDrawingId,
     int? locationRow,
     int? locationCol,
@@ -72,6 +87,9 @@ class Asset {
       serialNumber: serialNumber ?? this.serialNumber,
       modelName: modelName ?? this.modelName,
       vendor: vendor ?? this.vendor,
+      building: building ?? this.building,
+      floor: floor ?? this.floor,
+      memberName: memberName ?? this.memberName,
       locationDrawingId: locationDrawingId ?? this.locationDrawingId,
       locationRow: locationRow ?? this.locationRow,
       locationCol: locationCol ?? this.locationCol,
