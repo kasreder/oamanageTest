@@ -15,6 +15,8 @@ class DrawingRepository {
       ('R&D',     '3F', 'R&D 3층 테스트랩',  '고전압 주의'),
       ('Factory', '1F', '생산동 1층',        null),
       ('Factory', '2F', '생산동 2층',        '라인 B 공사중'),
+      ('Office', '11F', 'conco',        '사무공간'),
+      ('Office', '16F', 'hankyung',        '사무공간'),
     ];
     int i = 1;
     for (final s in seeds) {
