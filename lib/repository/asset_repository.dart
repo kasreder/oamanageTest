@@ -1,6 +1,8 @@
 // lib/repository/asset_repository.dart
 import 'dart:math';
 import '../model/asset.dart';
+import '../model/buildingPic.dart';
+import '../model/user.dart';
 
 class AssetRepository {
   final List<Asset> _items = [];
@@ -55,16 +57,14 @@ class AssetRepository {
   void _seed20() {
     final rnd = Random();
     final vendors = ['Samsung', 'LG', 'Siemens', 'FANUC', 'Omron', 'Keyence', 'Bosch', 'Panasonic'];
-    final models  = ['X100', 'M450', 'S2-Pro', 'VX-9', 'HF-220', 'Prime-7', 'Neo-3', 'Edge-11'];
-    final cats2   = ['생산설비', 'IT장비', '품질장비', '공용비품', '안전설비'];
-    final cats1   = ['모니터', '프린터', '데스크탑', '노트북', '태블릿', '스캐너', 'Test폰', '기타'];
-    final buildings = ['콘코디언', '한경경제신문사', '본사', '센터', 'CRM', null];
-    final floors = [
-      'B7', 'B6', 'B5', 'B4', 'B3', 'B2', 'B1', 'L',
-      for (var i = 1; i <= 22; i++) 'F$i',
-    ];
-    const List<String?> bgFiles = ['hankyung_16F_A.png', 'conco_11F_A.jpg', null];
-    final members = ['차두리', '강남길', '김유정', '김소연', '이나영', null];
+    final models = ['X100', 'M450', 'S2-Pro', 'VX-9', 'HF-220', 'Prime-7', 'Neo-3', 'Edge-11'];
+    final cats2 = ['생산설비', 'IT장비', '품질장비', '공용비품', '안전설비'];
+    final cats1 = ['모니터', '프린터', '데스크탑', '노트북', '태블릿', '스캐너', 'Test폰', '기타'];
+    final buildings = kBuildingNames;
+    final floors = kFloors;
+    const List<String?> bgFiles = kBuildingBgFiles;
+    final members = [...kEmployeeNames, null];
+    final networks = ['업무망', '개발망', '시스템망', '인터넷망', null];
 
     // 최근 365일 내 랜덤 생성일
     DateTime _randCreated() {
@@ -86,7 +86,7 @@ class AssetRepository {
     String _genCode() {
       while (true) {
         final letter = String.fromCharCode('A'.codeUnitAt(0) + rnd.nextInt(26));
-        final num5   = rnd.nextInt(100000).toString().padLeft(5, '0');
+        final num5 = rnd.nextInt(100000).toString().padLeft(5, '0');
         final code = '$letter$num5';
         if (!usedCodes.contains(code)) {
           usedCodes.add(code);
@@ -100,6 +100,12 @@ class AssetRepository {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       String pick(int n) => List.generate(n, (_) => chars[rnd.nextInt(chars.length)]).join();
       return '${pick(4)}-${pick(4)}-${pick(4)}';
+    }
+
+    // MAC 주소 생성
+    String _mac() {
+      String hex() => rnd.nextInt(256).toRadixString(16).padLeft(2, '0');
+      return '${hex()}-${hex()}-${hex()}-${hex()}-${hex()}-${hex()}';
     }
 
     // 오름차순 id 생성 ("1","2","3"...)
@@ -139,6 +145,12 @@ class AssetRepository {
       final col = drawFile == null ? null : rnd.nextInt(10);
       final created = _randCreated();
       final updated = _randUpdatedAfter(created);
+      final network = networks[rnd.nextInt(networks.length)];
+      final pCheck = _randCreated();
+      final confirm = _randUpdatedAfter(pCheck);
+      final nComment = '일반 비고 $id';
+      final oComment = 'OA 비고 $id';
+      final mac = _mac();
 
       _items.add(Asset(
         id: id,
@@ -148,6 +160,12 @@ class AssetRepository {
         serialNumber: sn,
         modelName: model,
         vendor: vendor,
+        network: network,
+        physicalCheckDate: pCheck,
+        confirmationDate: confirm,
+        normalComment: nComment,
+        oaComment: oComment,
+        macAddress: mac,
         building: building,
         floor: floor,
         memberName: member,
@@ -179,6 +197,12 @@ class AssetRepository {
       final col = drawFile == null ? null : rnd.nextInt(10);
       final created = _randCreated();
       final updated = _randUpdatedAfter(created);
+      final network = networks[rnd.nextInt(networks.length)];
+      final pCheck = _randCreated();
+      final confirm = _randUpdatedAfter(pCheck);
+      final nComment = '일반 비고 $id';
+      final oComment = 'OA 비고 $id';
+      final mac = _mac();
 
       _items.add(Asset(
         id: id,
@@ -188,6 +212,12 @@ class AssetRepository {
         serialNumber: sn,
         modelName: model,
         vendor: vendor,
+        network: network,
+        physicalCheckDate: pCheck,
+        confirmationDate: confirm,
+        normalComment: nComment,
+        oaComment: oComment,
+        macAddress: mac,
         building: building,
         floor: floor,
         memberName: member,
