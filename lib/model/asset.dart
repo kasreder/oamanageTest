@@ -24,6 +24,24 @@ class Asset {
   /// 공급사/제조사
   String vendor;
 
+  /// 네트워크 (업무망, 개발망 등)
+  String? network;
+
+  /// 실사일
+  DateTime? physicalCheckDate;
+
+  /// 확정일
+  DateTime? confirmationDate;
+
+  /// 일반 비고
+  String? normalComment;
+
+  /// OA 비고
+  String? oaComment;
+
+  /// MAC 주소
+  String? macAddress;
+
   /// 건물명(선택)
   String? building;
 
@@ -51,6 +69,12 @@ class Asset {
     required this.serialNumber,
     required this.modelName,
     required this.vendor,
+    this.network,
+    this.physicalCheckDate,
+    this.confirmationDate,
+    this.normalComment,
+    this.oaComment,
+    this.macAddress,
     this.building,
     this.floor,
     this.memberName,
@@ -69,6 +93,12 @@ class Asset {
     String? serialNumber,
     String? modelName,
     String? vendor,
+    String? network,
+    DateTime? physicalCheckDate,
+    DateTime? confirmationDate,
+    String? normalComment,
+    String? oaComment,
+    String? macAddress,
     String? building,
     String? floor,
     String? memberName,
@@ -87,6 +117,12 @@ class Asset {
       serialNumber: serialNumber ?? this.serialNumber,
       modelName: modelName ?? this.modelName,
       vendor: vendor ?? this.vendor,
+      network: network ?? this.network,
+      physicalCheckDate: physicalCheckDate ?? this.physicalCheckDate,
+      confirmationDate: confirmationDate ?? this.confirmationDate,
+      normalComment: normalComment ?? this.normalComment,
+      oaComment: oaComment ?? this.oaComment,
+      macAddress: macAddress ?? this.macAddress,
       building: building ?? this.building,
       floor: floor ?? this.floor,
       memberName: memberName ?? this.memberName,
