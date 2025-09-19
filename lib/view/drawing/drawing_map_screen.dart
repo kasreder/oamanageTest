@@ -26,7 +26,7 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
 
   // ✅ 배율 상태(드롭다운)
   double _scale = 1.0;
-  final List<double> _scaleOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.25, 2.5, 3.0];
+  final List<double> _scaleOptions = [0.5, 1.0, 1.5, 2, 2.5, 3.0, 3.5, 4.0] ;
 
   @override
   void initState() {
@@ -542,12 +542,14 @@ class _GridOverlayState extends State<_GridOverlay> {
                         ignoring: true,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
+
                             // 드래그 미리보기 배경 색상(보라: 배치 가능, 빨강: 충돌)과 투명도
-                            color: (_previewCanPlace
+              color: (_previewCanPlace
                                     ? Colors.deepPurpleAccent
                                     : Colors.redAccent)
                                 .withOpacity(0.3),
                             border: Border.all(
+
                               // 미리보기 테두리 색상/두께(2px)도 동일하게 맞춰 강조
                               color: _previewCanPlace
                                   ? Colors.deepPurpleAccent
@@ -584,8 +586,10 @@ class _GridOverlayState extends State<_GridOverlay> {
       return;
     }
 
+
     double dx = scenePosition.dx;
     double dy = scenePosition.dy;
+
     if (dx.isNaN || dy.isNaN) {
       return;
     }
@@ -675,7 +679,6 @@ class _GridOverlayState extends State<_GridOverlay> {
       _clearPreview();
       return;
     }
-
     int rawCol = (scenePosition.dx / cellW).floor();
     int rawRow = (scenePosition.dy / cellH).floor();
     rawRow = rawRow.clamp(0, rows - 1);
