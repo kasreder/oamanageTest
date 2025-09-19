@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../model/asset.dart';
 import '../repository/asset_repository.dart';
+import '../util/grid_marker.dart';
 import 'drawing_provider.dart'; // 도면에 반영하기 위해 사용
 
 class AssetProvider extends ChangeNotifier {
@@ -39,12 +40,48 @@ class AssetProvider extends ChangeNotifier {
     // 기존 위치(제거 목적)
     final before = repo.getById(assetId);
 
+    int? normalizedRow = row;
+    int? normalizedCol = col;
+    if (drawingId != null && row != null && col != null) {
+      final drawing = drawingProvider.getById(drawingId);
+      if (drawing != null) {
+        final normalized = normalizeBlockOrigin(
+          row: row,
+          col: col,
+          rows: drawing.gridRows,
+          cols: drawing.gridCols,
+        );
+        normalizedRow = normalized.$1;
+        normalizedCol = normalized.$2;
+
+        String? ignoreKey;
+        if (before != null &&
+            before.locationDrawingId == drawingId &&
+            before.locationRow != null &&
+            before.locationCol != null) {
+          ignoreKey = cellKeyFrom(row: before.locationRow!, col: before.locationCol!);
+        }
+
+        final canPlace = canPlaceMarker(
+          cellAssets: drawing.cellAssets,
+          row: normalizedRow!,
+          col: normalizedCol!,
+          rows: drawing.gridRows,
+          cols: drawing.gridCols,
+          ignoreKey: ignoreKey,
+        );
+        if (!canPlace) {
+          throw StateError('marker_overlap');
+        }
+      }
+    }
+
     // 자산 위치 저장
     final updated = repo.setLocation(
       id: assetId,
       drawingId: drawingId,
-      row: row,
-      col: col,
+      row: normalizedRow,
+      col: normalizedCol,
       drawingFile: drawingFile ?? (drawingId == null ? null : before?.locationDrawingFile),
     );
     items = repo.list();
@@ -62,12 +99,14 @@ class AssetProvider extends ChangeNotifier {
 
     // 도면 반영: 새 위치 추가
     if (updated != null && updated.locationDrawingId != null) {
-      await drawingProvider.addAssetToCell(
-        id: updated.locationDrawingId!,
-        row: updated.locationRow ?? 0,
-        col: updated.locationCol ?? 0,
-        assetId: assetId,
-      );
+      if (normalizedRow != null && normalizedCol != null) {
+        await drawingProvider.addAssetToCell(
+          id: updated.locationDrawingId!,
+          row: normalizedRow!,
+          col: normalizedCol!,
+          assetId: assetId,
+        );
+      }
     }
 
     return updated;
