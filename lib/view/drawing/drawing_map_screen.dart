@@ -473,14 +473,34 @@ class _GridOverlayState extends State<_GridOverlay> {
                       builder: (dragContext) {
                         return DragTarget<_MarkerDragData>(
                           onWillAccept: (_) => true,
+                          onMove: (details) {
+                            final renderBox = dragContext.findRenderObject() as RenderBox?;
+                            if (renderBox == null) return;
+                            final local = renderBox.globalToLocal(details.offset);
+                            final scene = _tc.toScene(local);
+                            _updatePreview(
+                              data: details.data,
+                              scenePosition: scene,
+                              canvasW: canvasW,
+                              canvasH: canvasH,
+                              cellW: cellW,
+                              cellH: cellH,
+                              rows: rows,
+                              cols: cols,
+                            );
+                          },
+                          onLeave: (_) => _clearPreview(),
+
                           onAcceptWithDetails: (details) async {
                             final renderBox = dragContext.findRenderObject() as RenderBox?;
                             if (renderBox == null) return;
                             final local = renderBox.globalToLocal(details.offset);
+
+                            final scene = _tc.toScene(local);
                             await _handleMarkerDrop(
                               context: dragContext,
                               data: details.data,
-                              localPosition: local,
+                              scenePosition: scene,
                               canvasW: canvasW,
                               canvasH: canvasH,
                               cellW: cellW,
@@ -543,7 +563,8 @@ class _GridOverlayState extends State<_GridOverlay> {
   Future<void> _handleMarkerDrop({
     required BuildContext context,
     required _MarkerDragData data,
-    required Offset localPosition,
+
+    required Offset scenePosition,
     required double canvasW,
     required double canvasH,
     required double cellW,
@@ -551,12 +572,16 @@ class _GridOverlayState extends State<_GridOverlay> {
     required int rows,
     required int cols,
   }) async {
+    _clearPreview();
+
     if (data.assetIds.isEmpty || rows <= 0 || cols <= 0) {
       return;
     }
 
-    double dx = localPosition.dx;
-    double dy = localPosition.dy;
+
+    double dx = scenePosition.dx;
+    double dy = scenePosition.dy;
+
     if (dx.isNaN || dy.isNaN) {
       return;
     }
@@ -627,7 +652,9 @@ class _GridOverlayState extends State<_GridOverlay> {
 
   void _updatePreview({
     required _MarkerDragData data,
-    required Offset localPosition,
+
+    required Offset scenePosition,
+
     required double canvasW,
     required double canvasH,
     required double cellW,
@@ -635,20 +662,22 @@ class _GridOverlayState extends State<_GridOverlay> {
     required int rows,
     required int cols,
   }) {
-    if (localPosition.dx.isNaN || localPosition.dy.isNaN) {
+
+    if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
       return;
     }
 
-    if (localPosition.dx < 0 ||
-        localPosition.dy < 0 ||
-        localPosition.dx >= canvasW ||
-        localPosition.dy >= canvasH) {
+    if (scenePosition.dx < 0 ||
+        scenePosition.dy < 0 ||
+        scenePosition.dx >= canvasW ||
+        scenePosition.dy >= canvasH) {
       _clearPreview();
       return;
     }
 
-    int rawCol = (localPosition.dx / cellW).floor();
-    int rawRow = (localPosition.dy / cellH).floor();
+    int rawCol = (scenePosition.dx / cellW).floor();
+    int rawRow = (scenePosition.dy / cellH).floor();
+
     rawRow = rawRow.clamp(0, rows - 1);
     rawCol = rawCol.clamp(0, cols - 1);
 
