@@ -473,22 +473,6 @@ class _GridOverlayState extends State<_GridOverlay> {
                       builder: (dragContext) {
                         return DragTarget<_MarkerDragData>(
                           onWillAccept: (_) => true,
-                          onMove: (details) {
-                            final renderBox = dragContext.findRenderObject() as RenderBox?;
-                            if (renderBox == null) return;
-                            final local = renderBox.globalToLocal(details.offset);
-                            _updatePreview(
-                              data: details.data,
-                              localPosition: local,
-                              canvasW: canvasW,
-                              canvasH: canvasH,
-                              cellW: cellW,
-                              cellH: cellH,
-                              rows: rows,
-                              cols: cols,
-                            );
-                          },
-                          onLeave: (_) => _clearPreview(),
                           onAcceptWithDetails: (details) async {
                             final renderBox = dragContext.findRenderObject() as RenderBox?;
                             if (renderBox == null) return;
@@ -567,8 +551,6 @@ class _GridOverlayState extends State<_GridOverlay> {
     required int rows,
     required int cols,
   }) async {
-    _clearPreview();
-
     if (data.assetIds.isEmpty || rows <= 0 || cols <= 0) {
       return;
     }
