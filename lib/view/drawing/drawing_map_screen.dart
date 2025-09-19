@@ -281,6 +281,10 @@ class _GridOverlayState extends State<_GridOverlay> {
   int? _previewCol;
   bool _previewCanPlace = true;
 
+  int? _previewRow;
+  int? _previewCol;
+  bool _previewCanPlace = true;
+
   @override
   void initState() {
     super.initState();
@@ -485,8 +489,10 @@ class _GridOverlayState extends State<_GridOverlay> {
                         return DragTarget<_MarkerDragData>(
                           onWillAccept: (_) => true,
                           onMove: (details) {
+
                             final scene = _globalToScene(details.offset);
                             if (scene == null) return;
+
                             _updatePreview(
                               data: details.data,
                               scenePosition: scene,
@@ -499,9 +505,11 @@ class _GridOverlayState extends State<_GridOverlay> {
                             );
                           },
                           onLeave: (_) => _clearPreview(),
+
                           onAcceptWithDetails: (details) async {
                             final scene = _globalToScene(details.offset);
                             if (scene == null) return;
+
                             await _handleMarkerDrop(
                               context: dragContext,
                               data: details.data,
@@ -568,6 +576,7 @@ class _GridOverlayState extends State<_GridOverlay> {
   Future<void> _handleMarkerDrop({
     required BuildContext context,
     required _MarkerDragData data,
+
     required Offset scenePosition,
     required double canvasW,
     required double canvasH,
@@ -582,8 +591,10 @@ class _GridOverlayState extends State<_GridOverlay> {
       return;
     }
 
+
     double dx = scenePosition.dx;
     double dy = scenePosition.dy;
+
     if (dx.isNaN || dy.isNaN) {
       return;
     }
@@ -649,6 +660,7 @@ class _GridOverlayState extends State<_GridOverlay> {
       ScaffoldMessenger.of(this.context).showSnackBar(
         const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
       );
+
     }
   }
 
@@ -664,6 +676,7 @@ class _GridOverlayState extends State<_GridOverlay> {
   }) {
     if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
       return;
+
     }
 
     if (scenePosition.dx < 0 ||
@@ -676,6 +689,59 @@ class _GridOverlayState extends State<_GridOverlay> {
 
     int rawCol = (scenePosition.dx / cellW).floor();
     int rawRow = (scenePosition.dy / cellH).floor();
+    rawRow = rawRow.clamp(0, rows - 1);
+    rawCol = rawCol.clamp(0, cols - 1);
+
+    final normalized = normalizeBlockOrigin(
+      row: rawRow,
+      col: rawCol,
+      rows: rows,
+      cols: cols,
+    );
+    final targetRow = normalized.$1;
+    final targetCol = normalized.$2;
+
+    final drawing = widget.d;
+    final canPlace = canPlaceMarker(
+      cellAssets: drawing.cellAssets,
+      row: targetRow,
+      col: targetCol,
+      rows: drawing.gridRows,
+      cols: drawing.gridCols,
+      ignoreKey: data.areaKey,
+    );
+
+    _setPreview(row: targetRow, col: targetCol, canPlace: canPlace);
+  }
+
+  void _updatePreview({
+    required _MarkerDragData data,
+
+    required Offset scenePosition,
+
+    required double canvasW,
+    required double canvasH,
+    required double cellW,
+    required double cellH,
+    required int rows,
+    required int cols,
+  }) {
+
+    if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
+      return;
+    }
+
+    if (scenePosition.dx < 0 ||
+        scenePosition.dy < 0 ||
+        scenePosition.dx >= canvasW ||
+        scenePosition.dy >= canvasH) {
+      _clearPreview();
+      return;
+    }
+
+    int rawCol = (scenePosition.dx / cellW).floor();
+    int rawRow = (scenePosition.dy / cellH).floor();
+
     rawRow = rawRow.clamp(0, rows - 1);
     rawCol = rawCol.clamp(0, cols - 1);
 
