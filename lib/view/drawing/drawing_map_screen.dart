@@ -26,7 +26,7 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
 
   // ✅ 배율 상태(드롭다운)
   double _scale = 1.0;
-  final List<double> _scaleOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.25, 2.5, 3.0];
+  final List<double> _scaleOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.25, 2.5, 3.0, 3.25, 3.5, 4.0] ;
 
   @override
   void initState() {
@@ -276,10 +276,6 @@ class _GridOverlayState extends State<_GridOverlay> {
   // ✅ 배율/이동 컨트롤러
   final TransformationController _tc = TransformationController();
   final GlobalKey _viewerKey = GlobalKey();
-
-  int? _previewRow;
-  int? _previewCol;
-  bool _previewCanPlace = true;
 
   int? _previewRow;
   int? _previewCol;
@@ -689,59 +685,6 @@ class _GridOverlayState extends State<_GridOverlay> {
 
     int rawCol = (scenePosition.dx / cellW).floor();
     int rawRow = (scenePosition.dy / cellH).floor();
-    rawRow = rawRow.clamp(0, rows - 1);
-    rawCol = rawCol.clamp(0, cols - 1);
-
-    final normalized = normalizeBlockOrigin(
-      row: rawRow,
-      col: rawCol,
-      rows: rows,
-      cols: cols,
-    );
-    final targetRow = normalized.$1;
-    final targetCol = normalized.$2;
-
-    final drawing = widget.d;
-    final canPlace = canPlaceMarker(
-      cellAssets: drawing.cellAssets,
-      row: targetRow,
-      col: targetCol,
-      rows: drawing.gridRows,
-      cols: drawing.gridCols,
-      ignoreKey: data.areaKey,
-    );
-
-    _setPreview(row: targetRow, col: targetCol, canPlace: canPlace);
-  }
-
-  void _updatePreview({
-    required _MarkerDragData data,
-
-    required Offset scenePosition,
-
-    required double canvasW,
-    required double canvasH,
-    required double cellW,
-    required double cellH,
-    required int rows,
-    required int cols,
-  }) {
-
-    if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
-      return;
-    }
-
-    if (scenePosition.dx < 0 ||
-        scenePosition.dy < 0 ||
-        scenePosition.dx >= canvasW ||
-        scenePosition.dy >= canvasH) {
-      _clearPreview();
-      return;
-    }
-
-    int rawCol = (scenePosition.dx / cellW).floor();
-    int rawRow = (scenePosition.dy / cellH).floor();
-
     rawRow = rawRow.clamp(0, rows - 1);
     rawCol = rawCol.clamp(0, cols - 1);
 
