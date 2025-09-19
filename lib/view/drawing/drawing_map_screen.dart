@@ -490,10 +490,12 @@ class _GridOverlayState extends State<_GridOverlay> {
                             );
                           },
                           onLeave: (_) => _clearPreview(),
+
                           onAcceptWithDetails: (details) async {
                             final renderBox = dragContext.findRenderObject() as RenderBox?;
                             if (renderBox == null) return;
                             final local = renderBox.globalToLocal(details.offset);
+
                             final scene = _tc.toScene(local);
                             await _handleMarkerDrop(
                               context: dragContext,
@@ -561,6 +563,7 @@ class _GridOverlayState extends State<_GridOverlay> {
   Future<void> _handleMarkerDrop({
     required BuildContext context,
     required _MarkerDragData data,
+
     required Offset scenePosition,
     required double canvasW,
     required double canvasH,
@@ -575,8 +578,10 @@ class _GridOverlayState extends State<_GridOverlay> {
       return;
     }
 
+
     double dx = scenePosition.dx;
     double dy = scenePosition.dy;
+
     if (dx.isNaN || dy.isNaN) {
       return;
     }
@@ -647,7 +652,9 @@ class _GridOverlayState extends State<_GridOverlay> {
 
   void _updatePreview({
     required _MarkerDragData data,
+
     required Offset scenePosition,
+
     required double canvasW,
     required double canvasH,
     required double cellW,
@@ -655,6 +662,7 @@ class _GridOverlayState extends State<_GridOverlay> {
     required int rows,
     required int cols,
   }) {
+
     if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
       return;
     }
@@ -669,6 +677,7 @@ class _GridOverlayState extends State<_GridOverlay> {
 
     int rawCol = (scenePosition.dx / cellW).floor();
     int rawRow = (scenePosition.dy / cellH).floor();
+
     rawRow = rawRow.clamp(0, rows - 1);
     rawCol = rawCol.clamp(0, cols - 1);
 
