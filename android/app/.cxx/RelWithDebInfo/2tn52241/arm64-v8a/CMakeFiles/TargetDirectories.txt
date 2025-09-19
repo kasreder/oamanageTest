@@ -1,0 +1,2 @@
+/Users/kview/StudioProjects/oamanageTest/android/app/.cxx/RelWithDebInfo/2tn52241/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/kview/StudioProjects/oamanageTest/android/app/.cxx/RelWithDebInfo/2tn52241/arm64-v8a/CMakeFiles/rebuild_cache.dir
