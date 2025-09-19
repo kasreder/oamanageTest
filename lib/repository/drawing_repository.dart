@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 import '../model/drawing.dart';
 import '../seed/grid_seed.dart';
+import '../util/grid_marker.dart';
 
 class DrawingRepository {
   final List<Drawing> _items = [];
@@ -143,11 +144,50 @@ class DrawingRepository {
     if (idx < 0) return null;
     final now = DateTime.now();
     final d = _items[idx];
-    final key = cellKey(row, col);
+    final normalized = normalizeBlockOrigin(
+      row: row,
+      col: col,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    );
+    final normRow = normalized.$1;
+    final normCol = normalized.$2;
+    final key = cellKey(normRow, normCol);
+
+    final canPlace = canPlaceMarker(
+      cellAssets: d.cellAssets,
+      row: normRow,
+      col: normCol,
+      rows: d.gridRows,
+      cols: d.gridCols,
+      ignoreKey: key,
+    );
+    if (!canPlace) {
+      throw StateError('marker_overlap');
+    }
+
     final map = Map<String, List<String>>.from(d.cellAssets);
-    final list = List<String>.from(map[key] ?? const []);
-    if (!list.contains(assetId)) list.add(assetId);
-    map[key] = list;
+    final aggregated = collectAreaAssetIds(
+      cellAssets: map,
+      row: normRow,
+      col: normCol,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    );
+    aggregated.add(assetId);
+
+    final areaKeyMap = mapAreaToOriginalKeys(
+      cellAssets: map,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    );
+    for (final originalKey in areaKeyMap[key] ?? const <String>[]) {
+      if (originalKey != key) {
+        map.remove(originalKey);
+      }
+    }
+
+    map[key] = aggregated.toList();
     _items[idx] = d.copyWith(cellAssets: map, updatedAt: now);
     return _items[idx];
   }
@@ -163,15 +203,57 @@ class DrawingRepository {
     if (idx < 0) return null;
     final now = DateTime.now();
     final d = _items[idx];
-    final key = cellKey(row, col);
+    final normalized = normalizeBlockOrigin(
+      row: row,
+      col: col,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    );
+    final normRow = normalized.$1;
+    final normCol = normalized.$2;
+    final key = cellKey(normRow, normCol);
     final map = Map<String, List<String>>.from(d.cellAssets);
-    final list = List<String>.from(map[key] ?? const []);
-    list.remove(assetId);
-    if (list.isEmpty) {
-      map.remove(key);
-    } else {
-      map[key] = list;
+
+    final areaKeyMap = mapAreaToOriginalKeys(
+      cellAssets: map,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    );
+    bool changed = false;
+    for (final originalKey in areaKeyMap[key] ?? const <String>[]) {
+      final list = List<String>.from(map[originalKey] ?? const []);
+      if (list.remove(assetId)) {
+        changed = true;
+        if (list.isEmpty) {
+          map.remove(originalKey);
+        } else {
+          map[originalKey] = list;
+        }
+      }
     }
+
+    if (changed) {
+      final aggregated = collectAreaAssetIds(
+        cellAssets: map,
+        row: normRow,
+        col: normCol,
+        rows: d.gridRows,
+        cols: d.gridCols,
+      );
+
+      for (final originalKey in areaKeyMap[key] ?? const <String>[]) {
+        if (originalKey != key) {
+          map.remove(originalKey);
+        }
+      }
+
+      if (aggregated.isEmpty) {
+        map.remove(key);
+      } else {
+        map[key] = aggregated.toList();
+      }
+    }
+
     _items[idx] = d.copyWith(cellAssets: map, updatedAt: now);
     return _items[idx];
   }
