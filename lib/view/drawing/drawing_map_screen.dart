@@ -276,6 +276,10 @@ class _GridOverlayState extends State<_GridOverlay> {
   // ✅ 배율/이동 컨트롤러
   final TransformationController _tc = TransformationController();
 
+  int? _previewRow;
+  int? _previewCol;
+  bool _previewCanPlace = true;
+
   @override
   void initState() {
     super.initState();
@@ -301,6 +305,26 @@ class _GridOverlayState extends State<_GridOverlay> {
   void dispose() {
     _tc.dispose();
     super.dispose();
+  }
+
+  void _setPreview({int? row, int? col, bool canPlace = true}) {
+    if (_previewRow != row || _previewCol != col || _previewCanPlace != canPlace) {
+      setState(() {
+        _previewRow = row;
+        _previewCol = col;
+        _previewCanPlace = canPlace;
+      });
+    }
+  }
+
+  void _clearPreview() {
+    if (_previewRow != null || _previewCol != null || !_previewCanPlace) {
+      setState(() {
+        _previewRow = null;
+        _previewCol = null;
+        _previewCanPlace = true;
+      });
+    }
   }
 
   Future<void> _decodeIfNeeded() async {
@@ -481,6 +505,32 @@ class _GridOverlayState extends State<_GridOverlay> {
 
                   // (4) 마커
                   ...markers,
+
+                  // (5) 드래그 위치 미리보기
+                  if (_previewRow != null && _previewCol != null)
+                    Positioned(
+                      left: _previewCol! * cellW,
+                      top: _previewRow! * cellH,
+                      width: markerWidth,
+                      height: markerHeight,
+                      child: IgnorePointer(
+                        ignoring: true,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: (_previewCanPlace
+                                    ? Colors.deepPurpleAccent
+                                    : Colors.redAccent)
+                                .withOpacity(0.3),
+                            border: Border.all(
+                              color: _previewCanPlace
+                                  ? Colors.deepPurpleAccent
+                                  : Colors.redAccent,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -573,6 +623,55 @@ class _GridOverlayState extends State<_GridOverlay> {
         const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
       );
     }
+  }
+
+  void _updatePreview({
+    required _MarkerDragData data,
+    required Offset localPosition,
+    required double canvasW,
+    required double canvasH,
+    required double cellW,
+    required double cellH,
+    required int rows,
+    required int cols,
+  }) {
+    if (localPosition.dx.isNaN || localPosition.dy.isNaN) {
+      return;
+    }
+
+    if (localPosition.dx < 0 ||
+        localPosition.dy < 0 ||
+        localPosition.dx >= canvasW ||
+        localPosition.dy >= canvasH) {
+      _clearPreview();
+      return;
+    }
+
+    int rawCol = (localPosition.dx / cellW).floor();
+    int rawRow = (localPosition.dy / cellH).floor();
+    rawRow = rawRow.clamp(0, rows - 1);
+    rawCol = rawCol.clamp(0, cols - 1);
+
+    final normalized = normalizeBlockOrigin(
+      row: rawRow,
+      col: rawCol,
+      rows: rows,
+      cols: cols,
+    );
+    final targetRow = normalized.$1;
+    final targetCol = normalized.$2;
+
+    final drawing = widget.d;
+    final canPlace = canPlaceMarker(
+      cellAssets: drawing.cellAssets,
+      row: targetRow,
+      col: targetCol,
+      rows: drawing.gridRows,
+      cols: drawing.gridCols,
+      ignoreKey: data.areaKey,
+    );
+
+    _setPreview(row: targetRow, col: targetCol, canPlace: canPlace);
   }
 
   void _openCellDialog(BuildContext context, Drawing d, int row, int col) {
