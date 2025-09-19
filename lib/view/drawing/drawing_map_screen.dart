@@ -485,10 +485,8 @@ class _GridOverlayState extends State<_GridOverlay> {
                         return DragTarget<_MarkerDragData>(
                           onWillAccept: (_) => true,
                           onMove: (details) {
-
                             final scene = _globalToScene(details.offset);
                             if (scene == null) return;
-
                             _updatePreview(
                               data: details.data,
                               scenePosition: scene,
@@ -501,11 +499,9 @@ class _GridOverlayState extends State<_GridOverlay> {
                             );
                           },
                           onLeave: (_) => _clearPreview(),
-
                           onAcceptWithDetails: (details) async {
                             final scene = _globalToScene(details.offset);
                             if (scene == null) return;
-
                             await _handleMarkerDrop(
                               context: dragContext,
                               data: details.data,
@@ -546,11 +542,15 @@ class _GridOverlayState extends State<_GridOverlay> {
                         ignoring: true,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: (_previewCanPlace
+
+                            // 드래그 미리보기 배경 색상(보라: 배치 가능, 빨강: 충돌)과 투명도
+              color: (_previewCanPlace
                                     ? Colors.deepPurpleAccent
                                     : Colors.redAccent)
                                 .withOpacity(0.3),
                             border: Border.all(
+
+                              // 미리보기 테두리 색상/두께(2px)도 동일하게 맞춰 강조
                               color: _previewCanPlace
                                   ? Colors.deepPurpleAccent
                                   : Colors.redAccent,
@@ -572,7 +572,6 @@ class _GridOverlayState extends State<_GridOverlay> {
   Future<void> _handleMarkerDrop({
     required BuildContext context,
     required _MarkerDragData data,
-
     required Offset scenePosition,
     required double canvasW,
     required double canvasH,
@@ -656,7 +655,6 @@ class _GridOverlayState extends State<_GridOverlay> {
       ScaffoldMessenger.of(this.context).showSnackBar(
         const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
       );
-
     }
   }
 
@@ -672,7 +670,6 @@ class _GridOverlayState extends State<_GridOverlay> {
   }) {
     if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
       return;
-
     }
 
     if (scenePosition.dx < 0 ||
@@ -682,7 +679,6 @@ class _GridOverlayState extends State<_GridOverlay> {
       _clearPreview();
       return;
     }
-
     int rawCol = (scenePosition.dx / cellW).floor();
     int rawRow = (scenePosition.dy / cellH).floor();
     rawRow = rawRow.clamp(0, rows - 1);
@@ -866,6 +862,7 @@ class _AssetMarker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 마커 타일의 기본 색상(드래그 중일 땐 투명도를 더 낮춰 살짝 흐리게 표시)
     final color = Colors.deepPurpleAccent.withOpacity(isDragging ? 0.6 : 0.9);
     return Material(
       color: Colors.transparent,
@@ -876,6 +873,7 @@ class _AssetMarker extends StatelessWidget {
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(6),
+            // 테두리를 밝은 흰색(투명도 0.9)과 두께 2px로 주어 격자 위에서도 눈에 띄게
             border: Border.all(color: Colors.white.withOpacity(0.9), width: 2),
             boxShadow: const [
               BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
