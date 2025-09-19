@@ -3,6 +3,9 @@ import 'dart:typed_data';
 
 /// 도면 모델 (건물 · 층별)
 class Drawing {
+  /// 마커가 차지하는 격자 크기 (행, 열)
+  static const int markerBlockSpan = 2;
+
   final String id;           // 고유 ID
   final String building;           // 건물명
   final String floor;              // 층 (예: B1, 1F, 2F)
