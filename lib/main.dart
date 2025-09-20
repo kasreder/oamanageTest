@@ -1,4 +1,8 @@
-// lib/main.dart
+// File Path: lib/main.dart
+// Features:
+// - main 함수 (13~15행): OAManagerApp을 실행합니다.
+// - OAManagerApp.build (21~55행): Provider를 초기화하고 MaterialApp.router를 구성합니다.
+// - addPostFrameCallback (33~41행): 자산 위치 정보를 DrawingProvider와 동기화합니다.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'route/app_router.dart';
