@@ -130,16 +130,23 @@ class _LocationEditorState extends State<_LocationEditor> {
                 onPressed: () async {
                   final r = int.tryParse(_row.text) ?? 0;
                   final c = int.tryParse(_col.text) ?? 0;
-                  await context.read<AssetProvider>().setLocationAndSync(
-                    assetId: widget.assetId,
-                    drawingId: _drawingId,
-                    row: _drawingId == null ? null : r,
-                    col: _drawingId == null ? null : c,
-                    drawingProvider: context.read<DrawingProvider>(),
-                  );
-                  if (context.mounted) {
+                  try {
+                    await context.read<AssetProvider>().setLocationAndSync(
+                          assetId: widget.assetId,
+                          drawingId: _drawingId,
+                          row: _drawingId == null ? null : r,
+                          col: _drawingId == null ? null : c,
+                          drawingProvider: context.read<DrawingProvider>(),
+                        );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('위치가 저장되었습니다.')),
+                      );
+                    }
+                  } on StateError catch (_) {
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('위치가 저장되었습니다.')),
+                      const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
                     );
                   }
                 },

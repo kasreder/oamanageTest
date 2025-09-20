@@ -6,6 +6,7 @@ import '../../provider/drawing_provider.dart';
 import '../../provider/asset_provider.dart';
 import '../../model/drawing.dart';
 import '../../util/drawing_image_loader.dart';
+import '../../util/grid_marker.dart';
 
 // (선택) 격자/테두리 색만 모아두고 싶다면 상수로 둡니다.
 const _kGridColor = Color(0x18000000); // 검정(연한)
@@ -274,6 +275,11 @@ class _GridOverlayState extends State<_GridOverlay> {
 
   // ✅ 배율/이동 컨트롤러
   final TransformationController _tc = TransformationController();
+  final GlobalKey _viewerKey = GlobalKey();
+
+  int? _previewRow;
+  int? _previewCol;
+  bool _previewCanPlace = true;
 
   @override
   void initState() {
@@ -302,6 +308,35 @@ class _GridOverlayState extends State<_GridOverlay> {
     super.dispose();
   }
 
+  void _setPreview({int? row, int? col, bool canPlace = true}) {
+    if (_previewRow != row || _previewCol != col || _previewCanPlace != canPlace) {
+      setState(() {
+        _previewRow = row;
+        _previewCol = col;
+        _previewCanPlace = canPlace;
+      });
+    }
+  }
+
+  void _clearPreview() {
+    if (_previewRow != null || _previewCol != null || !_previewCanPlace) {
+      setState(() {
+        _previewRow = null;
+        _previewCol = null;
+        _previewCanPlace = true;
+      });
+    }
+  }
+
+  Offset? _globalToScene(Offset globalPosition) {
+    final RenderObject? renderObject = _viewerKey.currentContext?.findRenderObject();
+    if (renderObject is! RenderBox) {
+      return null;
+    }
+    final Offset localPosition = renderObject.globalToLocal(globalPosition);
+    return _tc.toScene(localPosition);
+  }
+
   Future<void> _decodeIfNeeded() async {
     final bytes = widget.d.imageBytes;
     if (bytes == null) return;
@@ -313,7 +348,6 @@ class _GridOverlayState extends State<_GridOverlay> {
   @override
   Widget build(BuildContext context) {
     final d = widget.d;
-    final ap = widget.assetProvider;
     final showMarkers = widget.showMarkers;
 
     return LayoutBuilder(
@@ -343,27 +377,58 @@ class _GridOverlayState extends State<_GridOverlay> {
         final cellH = canvasH / rows;
 
         // 5) 마커 좌표 (항상 r,c 기준 → 셀 중심)
+        final markerWidth = cellW * Drawing.markerBlockSpan;
+        final markerHeight = cellH * Drawing.markerBlockSpan;
+        final double currentScaleValue = _tc.value.getMaxScaleOnAxis();
+        final double markerScale = currentScaleValue > 0 ? currentScaleValue : 1.0;
+
         final markers = <Widget>[];
         if (showMarkers && d.cellAssets.isNotEmpty) {
-          d.cellAssets.forEach((key, ids) {
+          final grouped = groupAssetsByArea(
+            cellAssets: d.cellAssets,
+            rows: rows,
+            cols: cols,
+          );
+          grouped.forEach((key, ids) {
             if (ids.isEmpty) return;
-            final rc = _parseCellKey(key);
+            final rc = parseCellKey(key);
             if (rc == null) return;
-            final r = rc.$1;
-            final c = rc.$2;
-            if (r < 0 || c < 0 || r >= rows || c >= cols) return;
+            final areaRow = rc.$1;
+            final areaCol = rc.$2;
+            if (areaRow < 0 || areaCol < 0 || areaRow >= rows || areaCol >= cols) return;
 
-            final left = c * cellW + cellW / 2;
-            final top = r * cellH + cellH / 2;
+            final left = areaCol * cellW;
+            final top = areaRow * cellH;
+            final dragData = _MarkerDragData(
+              row: areaRow,
+              col: areaCol,
+              assetIds: List<String>.from(ids),
+            );
 
             markers.add(Positioned(
-              left: left - 14,
-              top: top - 14,
-              width: 15,
-              height: 15,
-              child: _AssetMarker(
-                count: ids.length,
-                onTap: () => _openCellDialog(context, d, r, c),
+              left: left,
+              top: top,
+              width: markerWidth,
+              height: markerHeight,
+              child: LongPressDraggable<_MarkerDragData>(
+                data: dragData,
+                feedback: SizedBox(
+                  width: markerWidth * markerScale,
+                  height: markerHeight * markerScale,
+                  child: IgnorePointer(
+                    ignoring: true,
+                    child: _AssetMarker(
+                      count: ids.length,
+                      onTap: () {},
+                      isDragging: true,
+                    ),
+                  ),
+                ),
+                childWhenDragging: const SizedBox.shrink(),
+                child: _AssetMarker(
+                  count: ids.length,
+                  onTap: () => _openCellDialog(context, d, areaRow, areaCol),
+                ),
               ),
             ));
           });
@@ -372,6 +437,7 @@ class _GridOverlayState extends State<_GridOverlay> {
         // 6) InteractiveViewer: 배율/이동(컨트롤러 연동)
         return Center(
           child: InteractiveViewer(
+            key: _viewerKey,
             transformationController: _tc,
             // ✅ 배율 연동 포인트
             constrained: false,
@@ -414,17 +480,84 @@ class _GridOverlayState extends State<_GridOverlay> {
 
                   // (3) 탭: 캔버스 좌표 → (r,c)
                   Positioned.fill(
-                    child: _CellTappableAreaProportional(
-                      rows: rows,
-                      cols: cols,
-                      canvasW: canvasW,
-                      canvasH: canvasH,
-                      onCellTap: (r, c) => _openCellDialog(context, d, r, c),
+                    child: Builder(
+                      builder: (dragContext) {
+                        return DragTarget<_MarkerDragData>(
+                          onWillAccept: (_) => true,
+                          onMove: (details) {
+                            final scene = _globalToScene(details.offset);
+                            if (scene == null) return;
+                            _updatePreview(
+                              data: details.data,
+                              scenePosition: scene,
+                              canvasW: canvasW,
+                              canvasH: canvasH,
+                              cellW: cellW,
+                              cellH: cellH,
+                              rows: rows,
+                              cols: cols,
+                            );
+                          },
+                          onLeave: (_) => _clearPreview(),
+                          onAcceptWithDetails: (details) async {
+                            final scene = _globalToScene(details.offset);
+                            if (scene == null) return;
+                            await _handleMarkerDrop(
+                              context: dragContext,
+                              data: details.data,
+                              scenePosition: scene,
+                              canvasW: canvasW,
+                              canvasH: canvasH,
+                              cellW: cellW,
+                              cellH: cellH,
+                              rows: rows,
+                              cols: cols,
+                            );
+                          },
+                          builder: (context, candidate, rejected) {
+                            return _CellTappableAreaProportional(
+                              rows: rows,
+                              cols: cols,
+                              canvasW: canvasW,
+                              canvasH: canvasH,
+                              onCellTap: (r, c) => _openCellDialog(context, d, r, c),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
 
                   // (4) 마커
                   ...markers,
+
+                  // (5) 드래그 위치 미리보기
+                  if (_previewRow != null && _previewCol != null)
+                    Positioned(
+                      left: _previewCol! * cellW,
+                      top: _previewRow! * cellH,
+                      width: markerWidth,
+                      height: markerHeight,
+                      child: IgnorePointer(
+                        ignoring: true,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            // 드래그 미리보기 배경 색상(보라: 배치 가능, 빨강: 충돌)과 투명도
+                            color: (_previewCanPlace
+                                    ? Colors.deepPurpleAccent
+                                    : Colors.redAccent)
+                                .withOpacity(0.3),
+                            border: Border.all(
+                              // 미리보기 테두리 색상/두께(2px)도 동일하게 맞춰 강조
+                              color: _previewCanPlace
+                                  ? Colors.deepPurpleAccent
+                                  : Colors.redAccent,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -434,25 +567,161 @@ class _GridOverlayState extends State<_GridOverlay> {
     );
   }
 
-  (int, int)? _parseCellKey(String key) {
-    try {
-      final rIdx = key.indexOf('r');
-      final cIdx = key.indexOf('c');
-      if (rIdx != 0 || cIdx < 0) return null;
-      final r = int.parse(key.substring(1, cIdx));
-      final c = int.parse(key.substring(cIdx + 1));
-      return (r, c);
-    } catch (_) {
-      return null;
+  Future<void> _handleMarkerDrop({
+    required BuildContext context,
+    required _MarkerDragData data,
+    required Offset scenePosition,
+    required double canvasW,
+    required double canvasH,
+    required double cellW,
+    required double cellH,
+    required int rows,
+    required int cols,
+  }) async {
+    _clearPreview();
+
+    if (data.assetIds.isEmpty || rows <= 0 || cols <= 0) {
+      return;
     }
+
+    double dx = scenePosition.dx;
+    double dy = scenePosition.dy;
+    if (dx.isNaN || dy.isNaN) {
+      return;
+    }
+    if (canvasW > 0) {
+      dx = dx.clamp(0.0, canvasW - 0.0001);
+    }
+    if (canvasH > 0) {
+      dy = dy.clamp(0.0, canvasH - 0.0001);
+    }
+
+    int rawCol = (dx / cellW).floor();
+    int rawRow = (dy / cellH).floor();
+    rawRow = rawRow.clamp(0, rows - 1);
+    rawCol = rawCol.clamp(0, cols - 1);
+
+    final normalized = normalizeBlockOrigin(
+      row: rawRow,
+      col: rawCol,
+      rows: rows,
+      cols: cols,
+    );
+    final targetRow = normalized.$1;
+    final targetCol = normalized.$2;
+
+    if (targetRow == data.row && targetCol == data.col) {
+      return;
+    }
+
+    final drawingProvider = context.read<DrawingProvider>();
+    final drawing = drawingProvider.getById(widget.d.id);
+    if (drawing == null) {
+      return;
+    }
+
+    final canPlace = canPlaceMarker(
+      cellAssets: drawing.cellAssets,
+      row: targetRow,
+      col: targetCol,
+      rows: drawing.gridRows,
+      cols: drawing.gridCols,
+      ignoreKey: data.areaKey,
+    );
+    if (!canPlace) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+      );
+      return;
+    }
+
+    try {
+      for (final assetId in data.assetIds) {
+        await widget.assetProvider.setLocationAndSync(
+          assetId: assetId,
+          drawingId: drawing.id,
+          row: targetRow,
+          col: targetCol,
+          drawingProvider: drawingProvider,
+        );
+      }
+    } on StateError catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+      );
+    }
+  }
+
+  void _updatePreview({
+    required _MarkerDragData data,
+    required Offset scenePosition,
+    required double canvasW,
+    required double canvasH,
+    required double cellW,
+    required double cellH,
+    required int rows,
+    required int cols,
+  }) {
+    if (scenePosition.dx.isNaN || scenePosition.dy.isNaN) {
+      return;
+    }
+
+    if (scenePosition.dx < 0 ||
+        scenePosition.dy < 0 ||
+        scenePosition.dx >= canvasW ||
+        scenePosition.dy >= canvasH) {
+      _clearPreview();
+      return;
+    }
+
+    int rawCol = (scenePosition.dx / cellW).floor();
+    int rawRow = (scenePosition.dy / cellH).floor();
+    rawRow = rawRow.clamp(0, rows - 1);
+    rawCol = rawCol.clamp(0, cols - 1);
+
+    final normalized = normalizeBlockOrigin(
+      row: rawRow,
+      col: rawCol,
+      rows: rows,
+      cols: cols,
+    );
+    final targetRow = normalized.$1;
+    final targetCol = normalized.$2;
+
+    final drawing = widget.d;
+    final canPlace = canPlaceMarker(
+      cellAssets: drawing.cellAssets,
+      row: targetRow,
+      col: targetCol,
+      rows: drawing.gridRows,
+      cols: drawing.gridCols,
+      ignoreKey: data.areaKey,
+    );
+
+    _setPreview(row: targetRow, col: targetCol, canPlace: canPlace);
   }
 
   void _openCellDialog(BuildContext context, Drawing d, int row, int col) {
     final dp = context.read<DrawingProvider>();
     final ap = context.read<AssetProvider>();
 
-    final key = 'r${row}c$col';
-    final currentIds = List<String>.from(d.cellAssets[key] ?? const []);
+    final normalized = normalizeBlockOrigin(
+      row: row,
+      col: col,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    );
+    final areaRow = normalized.$1;
+    final areaCol = normalized.$2;
+    final currentIds = collectAreaAssetIds(
+      cellAssets: d.cellAssets,
+      row: areaRow,
+      col: areaCol,
+      rows: d.gridRows,
+      cols: d.gridCols,
+    ).toList();
     final currentAssets = currentIds.map((id) => ap.getById(id)).whereType<dynamic>().toList();
 
     showModalBottomSheet(
@@ -470,7 +739,7 @@ class _GridOverlayState extends State<_GridOverlay> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('자리: ($row, $col)', style: Theme.of(sheetContext).textTheme.titleMedium),
+              Text('자리: ($areaRow, $areaCol)', style: Theme.of(sheetContext).textTheme.titleMedium),
               const SizedBox(height: 8),
               if (currentAssets.isEmpty)
                 const ListTile(
@@ -493,7 +762,6 @@ class _GridOverlayState extends State<_GridOverlay> {
                           tooltip: '제거',
                           icon: const Icon(Icons.remove_circle_outline),
                           onPressed: () async {
-                            await dp.removeAssetFromCell(id: d.id, row: row, col: col, assetId: a.id);
                             await sheetContext.read<AssetProvider>().setLocationAndSync(
                                   assetId: a.id,
                                   drawingId: null,
@@ -502,7 +770,7 @@ class _GridOverlayState extends State<_GridOverlay> {
                                   drawingProvider: dp,
                                 );
                             if (sheetContext.mounted) Navigator.of(sheetContext).pop();
-                            _openCellDialog(context, dp.getById(d.id)!, row, col);
+                            _openCellDialog(context, dp.getById(d.id)!, areaRow, areaCol);
                           },
                         ),
                       );
@@ -514,15 +782,22 @@ class _GridOverlayState extends State<_GridOverlay> {
                 onPressed: () async {
                   final selected = await _openAssetPicker(sheetContext, ap);
                   if (selected == null) return;
-                  await sheetContext.read<AssetProvider>().setLocationAndSync(
-                        assetId: selected.id,
-                        drawingId: d.id,
-                        row: row,
-                        col: col,
-                        drawingProvider: dp,
-                      );
-                  if (sheetContext.mounted) Navigator.of(sheetContext).pop();
-                  _openCellDialog(context, dp.getById(d.id)!, row, col);
+                  try {
+                    await sheetContext.read<AssetProvider>().setLocationAndSync(
+                          assetId: selected.id,
+                          drawingId: d.id,
+                          row: areaRow,
+                          col: areaCol,
+                          drawingProvider: dp,
+                        );
+                    if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+                    _openCellDialog(context, dp.getById(d.id)!, areaRow, areaCol);
+                  } on StateError catch (_) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+                    );
+                  }
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('자산 추가'),
@@ -572,33 +847,47 @@ class _GridOverlayState extends State<_GridOverlay> {
 }
 
 class _AssetMarker extends StatelessWidget {
-  const _AssetMarker({required this.count, required this.onTap});
+  const _AssetMarker({
+    required this.count,
+    required this.onTap,
+    this.isDragging = false,
+  });
 
   final int count;
   final VoidCallback onTap;
+  final bool isDragging;
 
   @override
   Widget build(BuildContext context) {
+    // 마커 타일의 기본 색상(드래그 중일 땐 투명도를 더 낮춰 살짝 흐리게 표시)
+    final color = Colors.deepPurpleAccent.withOpacity(isDragging ? 0.6 : 0.9);
     return Material(
       color: Colors.transparent,
-      child: InkResponse(
+      child: InkWell(
         onTap: onTap,
-        radius: 22,
-        child: Container(
-          alignment: Alignment.center,
+        borderRadius: BorderRadius.circular(6),
+        child: Ink(
           decoration: BoxDecoration(
-            color: Colors.deepPurpleAccent.withOpacity(0.9),
-            shape: BoxShape.circle,
+            color: color,
+            borderRadius: BorderRadius.circular(6),
+            // 테두리를 밝은 흰색(투명도 0.9)과 두께 2px로 주어 격자 위에서도 눈에 띄게
+            border: Border.all(color: Colors.white.withOpacity(0.9), width: 2),
             boxShadow: const [
-              BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
+              BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
             ],
           ),
-          child: FittedBox(
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Text(
-                '$count',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Text(
+                  '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
@@ -606,6 +895,20 @@ class _AssetMarker extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MarkerDragData {
+  _MarkerDragData({
+    required this.row,
+    required this.col,
+    required List<String> assetIds,
+  })  : assetIds = List<String>.unmodifiable(assetIds),
+        areaKey = cellKeyFrom(row: row, col: col);
+
+  final int row;
+  final int col;
+  final List<String> assetIds;
+  final String areaKey;
 }
 
 /// 비례 격자 페인터: canvasW/H를 열/행으로 균등 분할해서 선을 그림
@@ -682,12 +985,25 @@ class _CellTappableAreaProportional extends StatelessWidget {
           return; // 캔버스 밖 무시
         }
 
+        if (cols <= 0 || rows <= 0) {
+          return;
+        }
+
         final cellW = canvasW / cols;
         final cellH = canvasH / rows;
 
-        final c = (local.dx / cellW).floor().clamp(0, cols - 1);
-        final r = (local.dy / cellH).floor().clamp(0, rows - 1);
-        onCellTap(r, c);
+        int c = (local.dx / cellW).floor();
+        int r = (local.dy / cellH).floor();
+        c = c.clamp(0, cols - 1);
+        r = r.clamp(0, rows - 1);
+
+        final normalized = normalizeBlockOrigin(
+          row: r,
+          col: c,
+          rows: rows,
+          cols: cols,
+        );
+        onCellTap(normalized.$1, normalized.$2);
       },
     );
   }
