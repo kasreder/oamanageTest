@@ -20,6 +20,13 @@ class GridSeed {
   static const double gridStrokeWidth   = 0.5;
   static const double borderStrokeWidth = 2.0;
 
+  /// ✅ 마커 스타일 (색상/투명도/테두리)
+  static const int markerColorHex = 0xFF7B61FF; // 기본 마커 배경색
+  static const double markerOpacity = 0.75; // 일반 상태 불투명도
+  static const double markerDraggingOpacity = 0.45; // 드래그 중 불투명도
+  static const int markerBorderColorHex = 0xE6FFFFFF; // 테두리 색상 (흰색 90%)
+  static const double markerBorderStrokeWidth = 2.0; // 테두리 두께(px)
+
   /// ✅ 이미지 최대 표시 크기(상한). (보통은 이미지 원본 비율로 화면에 맞춰 스케일)
   static const double maxCanvasW = 1920.0;
   static const double maxCanvasH = 1080.0;
