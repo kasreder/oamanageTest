@@ -17,7 +17,7 @@ class GridSeed {
   /// ✅ 격자선/테두리 색상 및 두께
   static const int gridColorHex   = 0x38000000; // 검정
   static const int borderColorHex = 0xFF000000; // 검정
-  static const double gridStrokeWidth   = 0.5;
+  static const double gridStrokeWidth   = 0.1;
   static const double borderStrokeWidth = 2.0;
 
   /// ✅ 마커 스타일 (색상/투명도/테두리)
@@ -25,7 +25,7 @@ class GridSeed {
   static const double markerOpacity = 0.75; // 일반 상태 불투명도
   static const double markerDraggingOpacity = 0.45; // 드래그 중 불투명도
   static const int markerBorderColorHex = 0xE6FFFFFF; // 테두리 색상 (흰색 90%)
-  static const double markerBorderStrokeWidth = 2.0; // 테두리 두께(px)
+  static const double markerBorderStrokeWidth = 0.1; // 테두리 두께(px)
 
   /// ✅ 이미지 최대 표시 크기(상한). (보통은 이미지 원본 비율로 화면에 맞춰 스케일)
   static const double maxCanvasW = 1920.0;
