@@ -2,8 +2,8 @@
 /// 격자/도면 공통 설정 시드값 (여기만 바꾸면 앱 전체 반영)
 class GridSeed {
   /// ✅ 행/열 기본값 (새 도면 생성 시 사용)
-  static const int defaultRows = 60;
-  static const int defaultCols = 120;
+  static const int defaultRows = 100;
+  static const int defaultCols = 160;
 
   /// ✅ 그리드 모드
   /// - true  : "비례 모드" (행/열 고정, 화면/이미지 크기에 맞춰 셀 픽셀 크기만 변함)

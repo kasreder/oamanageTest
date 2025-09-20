@@ -375,6 +375,7 @@ class _GridOverlayState extends State<_GridOverlay> {
         //       (격자 행/열 수가 바뀌면 cellW/cellH 값이 달라져 격자 크기가 조절됨)
         //       → 행/열 값은 Drawing.gridRows/gridCols에 저장되며,
         //         DrawingProvider.setGrid(...) (lib/provider/drawing_provider.dart)에서 변경합니다.
+        // lib/seed/grid_seed.dart 에서 칸을 바꾸면 나옴
         final rows = d.gridRows;
         final cols = d.gridCols;
         final cellW = canvasW / cols;
@@ -558,7 +559,7 @@ class _GridOverlayState extends State<_GridOverlay> {
                               color: _previewCanPlace
                                   ? Colors.deepPurpleAccent
                                   : Colors.redAccent,
-                              width: 2,
+                              width: 1,
                             ),
                           ),
                         ),
@@ -878,7 +879,7 @@ class _AssetMarker extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(6),
             // 테두리를 밝은 흰색(투명도 0.9)과 두께 2px로 주어 격자 위에서도 눈에 띄게
-            border: Border.all(color: Colors.white.withOpacity(0.9), width: 2),
+            border: Border.all(color: Colors.white.withOpacity(0.9), width: 0.1),
             boxShadow: const [
               BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
             ],
