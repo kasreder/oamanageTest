@@ -373,6 +373,8 @@ class _GridOverlayState extends State<_GridOverlay> {
         // 4) 행/열(고정) → 셀 크기(비례 확장)
         //    ※ 실제 격자 크기는 아래에서 화면 크기 대비 셀 폭/높이로 결정됩니다.
         //       (격자 행/열 수가 바뀌면 cellW/cellH 값이 달라져 격자 크기가 조절됨)
+        //       → 행/열 값은 Drawing.gridRows/gridCols에 저장되며,
+        //         DrawingProvider.setGrid(...) (lib/provider/drawing_provider.dart)에서 변경합니다.
         final rows = d.gridRows;
         final cols = d.gridCols;
         final cellW = canvasW / cols;
