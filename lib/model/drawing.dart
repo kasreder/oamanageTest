@@ -1,6 +1,8 @@
 // lib/model/drawing.dart
 import 'dart:typed_data';
 
+import '../seed/grid_seed.dart';
+
 /// 도면 모델 (건물 · 층별)
 class Drawing {
   /// 마커가 차지하는 격자 크기 (행, 열)
@@ -37,8 +39,8 @@ class Drawing {
     this.imageBytes,
     this.imageName,
     this.imageUpdatedAt,
-    this.gridRows = 2000,
-    this.gridCols = 2000,
+    this.gridRows = GridSeed.defaultRows,
+    this.gridCols = GridSeed.defaultCols,
     Map<String, List<String>>? cellAssets,
     required this.createdAt,
     required this.updatedAt,
