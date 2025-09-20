@@ -2,8 +2,8 @@
 /// 격자/도면 공통 설정 시드값 (여기만 바꾸면 앱 전체 반영)
 class GridSeed {
   /// ✅ 행/열 기본값 (새 도면 생성 시 사용)
-  static const int defaultRows = 100;
-  static const int defaultCols = 160;
+  static const int defaultRows = 60;
+  static const int defaultCols = 120;
 
   /// ✅ 그리드 모드
   /// - true  : "비례 모드" (행/열 고정, 화면/이미지 크기에 맞춰 셀 픽셀 크기만 변함)
@@ -22,7 +22,7 @@ class GridSeed {
 
   /// ✅ 마커 스타일 (색상/투명도/테두리)
   static const int markerColorHex = 0xFF7B61FF; // 기본 마커 배경색
-  static const double markerOpacity = 0.75; // 일반 상태 불투명도
+  static const double markerOpacity = 1; // 일반 상태 불투명도
   static const double markerDraggingOpacity = 0.45; // 드래그 중 불투명도
   static const int markerBorderColorHex = 0xE6FFFFFF; // 테두리 색상 (흰색 90%)
   static const double markerBorderStrokeWidth = 0.1; // 테두리 두께(px)

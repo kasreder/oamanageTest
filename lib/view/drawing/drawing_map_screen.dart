@@ -877,7 +877,7 @@ class _AssetMarker extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(2),
             // 테두리를 밝은 흰색(투명도 0.9)과 두께 2px로 주어 격자 위에서도 눈에 띄게
             border: Border.all(
               color: Color(GridSeed.markerBorderColorHex),
