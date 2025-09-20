@@ -26,7 +26,7 @@ class _DrawingMapScreenState extends State<DrawingMapScreen> {
 
   // ✅ 배율 상태(드롭다운)
   double _scale = 1.0;
-  final List<double> _scaleOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.25, 2.5, 3.0];
+  final List<double> _scaleOptions = [0.5, 1.0, 1.5, 2, 2.5, 3.0, 3.5, 4.0] ;
 
   @override
   void initState() {
@@ -675,7 +675,6 @@ class _GridOverlayState extends State<_GridOverlay> {
       _clearPreview();
       return;
     }
-
     int rawCol = (scenePosition.dx / cellW).floor();
     int rawRow = (scenePosition.dy / cellH).floor();
     rawRow = rawRow.clamp(0, rows - 1);
