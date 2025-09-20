@@ -18,6 +18,7 @@ class Drawing {
   DateTime? imageUpdatedAt;  // 업로드 시각
 
   // 격자 설정 (기본 12 x 18)
+  // lib/seed/grid_seed.dart
   int gridRows;
   int gridCols;
 
