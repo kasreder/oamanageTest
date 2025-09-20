@@ -10,6 +10,7 @@ import '../../provider/asset_provider.dart';
 import '../../provider/drawing_provider.dart';
 import '../../util/drawing_image_loader.dart';
 import '../../model/asset.dart';
+import '../../seed/grid_seed.dart';
 
 String _fmtDate(DateTime? d) =>
     d == null ? '' : d.toIso8601String().split('T').first;
@@ -372,8 +373,9 @@ class _LocationDialogState extends State<_LocationDialog> {
               if (context.mounted) Navigator.pop(context);
             } on StateError catch (_) {
               if (!context.mounted) return;
+              final span = GridSeed.markerBlockSpan;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+                SnackBar(content: Text('다른 ${span}×$span 영역과 겹칠 수 없습니다.')),
               );
             }
           },

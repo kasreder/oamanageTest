@@ -16,24 +16,26 @@ import '../model/drawing.dart';
   }
 }
 
-/// 주어진 위치를 마커 크기에 맞춰 정규화한 (row, col)을 반환합니다.
+/// 주어진 위치를 마커 크기를 고려해 경계 내로 정규화한 (row, col)을 반환합니다.
 /// - span 보다 작은 격자에서는 항상 (0,0)을 반환합니다.
 (int, int) normalizeBlockOrigin({
   required int row,
   required int col,
   required int rows,
   required int cols,
-  int span = Drawing.markerBlockSpan,
+  int? span,
 }) {
+  final blockSpan = span ?? Drawing.markerBlockSpan;
+
   int _normalizeIndex(int value, int maxCount) {
-    if (maxCount <= span) {
+    final effectiveSpan = blockSpan <= 0 ? 1 : blockSpan;
+    if (maxCount <= effectiveSpan) {
       return 0;
     }
-    final maxStart = maxCount - span;
-    int clamped = value;
-    if (clamped < 0) clamped = 0;
-    if (clamped > maxStart) clamped = maxStart;
-    return (clamped ~/ span) * span;
+    final maxStart = maxCount - effectiveSpan;
+    if (value < 0) return 0;
+    if (value > maxStart) return maxStart;
+    return value;
   }
 
   return (_normalizeIndex(row, rows), _normalizeIndex(col, cols));
@@ -51,8 +53,9 @@ bool canPlaceMarker({
   required int rows,
   required int cols,
   String? ignoreKey,
-  int span = Drawing.markerBlockSpan,
+  int? span,
 }) {
+  final blockSpan = span ?? Drawing.markerBlockSpan;
   final targetKey = cellKeyFrom(row: row, col: col);
 
   String? ignoreNormalizedKey;
@@ -64,7 +67,7 @@ bool canPlaceMarker({
         col: parsed.$2,
         rows: rows,
         cols: cols,
-        span: span,
+        span: blockSpan,
       );
       ignoreNormalizedKey = cellKeyFrom(row: normalized.$1, col: normalized.$2);
     }
@@ -79,7 +82,7 @@ bool canPlaceMarker({
       col: parsed.$2,
       rows: rows,
       cols: cols,
-      span: span,
+      span: blockSpan,
     );
     final otherKey = cellKeyFrom(row: normalized.$1, col: normalized.$2);
     if (otherKey == targetKey || (ignoreNormalizedKey != null && otherKey == ignoreNormalizedKey)) {
@@ -88,10 +91,10 @@ bool canPlaceMarker({
 
     final otherRow = normalized.$1;
     final otherCol = normalized.$2;
-    final intersects = row < otherRow + span &&
-        row + span > otherRow &&
-        col < otherCol + span &&
-        col + span > otherCol;
+    final intersects = row < otherRow + blockSpan &&
+        row + blockSpan > otherRow &&
+        col < otherCol + blockSpan &&
+        col + blockSpan > otherCol;
     if (intersects) {
       return false;
     }
@@ -106,14 +109,15 @@ Set<String> collectAreaAssetIds({
   required int col,
   required int rows,
   required int cols,
-  int span = Drawing.markerBlockSpan,
+  int? span,
 }) {
+  final blockSpan = span ?? Drawing.markerBlockSpan;
   final normalized = normalizeBlockOrigin(
     row: row,
     col: col,
     rows: rows,
     cols: cols,
-    span: span,
+    span: blockSpan,
   );
   final targetKey = cellKeyFrom(row: normalized.$1, col: normalized.$2);
 
@@ -127,7 +131,7 @@ Set<String> collectAreaAssetIds({
       col: parsed.$2,
       rows: rows,
       cols: cols,
-      span: span,
+      span: blockSpan,
     );
     final key = cellKeyFrom(row: normalizedEntry.$1, col: normalizedEntry.$2);
     if (key == targetKey) {
@@ -142,8 +146,9 @@ Map<String, Set<String>> groupAssetsByArea({
   required Map<String, List<String>> cellAssets,
   required int rows,
   required int cols,
-  int span = Drawing.markerBlockSpan,
+  int? span,
 }) {
+  final blockSpan = span ?? Drawing.markerBlockSpan;
   final grouped = <String, Set<String>>{};
   cellAssets.forEach((key, ids) {
     if (ids.isEmpty) return;
@@ -154,7 +159,7 @@ Map<String, Set<String>> groupAssetsByArea({
       col: parsed.$2,
       rows: rows,
       cols: cols,
-      span: span,
+      span: blockSpan,
     );
     final areaKey = cellKeyFrom(row: normalized.$1, col: normalized.$2);
     final areaSet = grouped.putIfAbsent(areaKey, () => <String>{});
@@ -168,8 +173,9 @@ Map<String, List<String>> mapAreaToOriginalKeys({
   required Map<String, List<String>> cellAssets,
   required int rows,
   required int cols,
-  int span = Drawing.markerBlockSpan,
+  int? span,
 }) {
+  final blockSpan = span ?? Drawing.markerBlockSpan;
   final grouped = <String, List<String>>{};
   cellAssets.forEach((key, ids) {
     if (ids.isEmpty) return;
@@ -180,7 +186,7 @@ Map<String, List<String>> mapAreaToOriginalKeys({
       col: parsed.$2,
       rows: rows,
       cols: cols,
-      span: span,
+      span: blockSpan,
     );
     final areaKey = cellKeyFrom(row: normalized.$1, col: normalized.$2);
     final list = grouped.putIfAbsent(areaKey, () => <String>[]);
