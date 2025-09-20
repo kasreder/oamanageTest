@@ -6,7 +6,7 @@ import '../seed/grid_seed.dart';
 /// 도면 모델 (건물 · 층별)
 class Drawing {
   /// 마커가 차지하는 격자 크기 (행, 열)
-  static const int markerBlockSpan = 2;
+  static int get markerBlockSpan => GridSeed.markerBlockSpan;
 
   final String id;           // 고유 ID
   final String building;           // 건물명
