@@ -9,12 +9,9 @@ import 'package:provider/provider.dart';
 import '../../provider/drawing_provider.dart';
 import '../../provider/asset_provider.dart';
 import '../../model/drawing.dart';
+import '../../seed/grid_seed.dart';
 import '../../util/drawing_image_loader.dart';
 import '../../util/grid_marker.dart';
-
-// (선택) 격자/테두리 색만 모아두고 싶다면 상수로 둡니다.
-const _kGridColor = Color(0x18000000); // 검정(연한)
-const _kBorderColor = Color(0xFF000000); // 검정
 
 class DrawingMapScreen extends StatefulWidget {
   const DrawingMapScreen({super.key, required this.drawingId});
@@ -872,7 +869,10 @@ class _AssetMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 마커 타일의 기본 색상(드래그 중일 땐 투명도를 더 낮춰 살짝 흐리게 표시)
-    final color = Colors.deepPurpleAccent.withOpacity(isDragging ? 0.6 : 0.9);
+    final baseColor = Color(GridSeed.markerColorHex);
+    final color = baseColor.withOpacity(
+      isDragging ? GridSeed.markerDraggingOpacity : GridSeed.markerOpacity,
+    );
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -883,7 +883,10 @@ class _AssetMarker extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(6),
             // 테두리를 밝은 흰색(투명도 0.9)과 두께 2px로 주어 격자 위에서도 눈에 띄게
-            border: Border.all(color: Colors.white.withOpacity(0.9), width: 0.1),
+            border: Border.all(
+              color: Color(GridSeed.markerBorderColorHex),
+              width: GridSeed.markerBorderStrokeWidth,
+            ),
             boxShadow: const [
               BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
             ],
@@ -940,11 +943,11 @@ class _GridPainterProportional extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final border = Paint()
-      ..color = _kBorderColor
-      ..strokeWidth = 2.0;
+      ..color = Color(GridSeed.borderColorHex)
+      ..strokeWidth = GridSeed.borderStrokeWidth;
     final grid = Paint()
-      ..color = _kGridColor
-      ..strokeWidth = 1.0;
+      ..color = Color(GridSeed.gridColorHex)
+      ..strokeWidth = GridSeed.gridStrokeWidth;
 
     // 외곽
     final rect = Rect.fromLTWH(0, 0, canvasW, canvasH);
