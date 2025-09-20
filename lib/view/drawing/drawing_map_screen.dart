@@ -590,6 +590,9 @@ class _GridOverlayState extends State<_GridOverlay> {
       return;
     }
 
+    final span = GridSeed.markerBlockSpan;
+    final overlapMessage = '다른 ${span}×$span 영역과 겹칠 수 없습니다.';
+
     double dx = scenePosition.dx;
     double dy = scenePosition.dy;
     if (dx.isNaN || dy.isNaN) {
@@ -637,7 +640,7 @@ class _GridOverlayState extends State<_GridOverlay> {
     if (!canPlace) {
       if (!mounted) return;
       ScaffoldMessenger.of(this.context).showSnackBar(
-        const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+        SnackBar(content: Text(overlapMessage)),
       );
       return;
     }
@@ -655,7 +658,7 @@ class _GridOverlayState extends State<_GridOverlay> {
     } on StateError catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(this.context).showSnackBar(
-        const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+        SnackBar(content: Text(overlapMessage)),
       );
     }
   }
@@ -800,7 +803,11 @@ class _GridOverlayState extends State<_GridOverlay> {
                   } on StateError catch (_) {
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+                      SnackBar(
+                        content: Text(
+                          '다른 ${GridSeed.markerBlockSpan}×${GridSeed.markerBlockSpan} 영역과 겹칠 수 없습니다.',
+                        ),
+                      ),
                     );
                   }
                 },

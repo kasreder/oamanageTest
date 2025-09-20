@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../provider/asset_provider.dart';
 import '../../provider/drawing_provider.dart';
+import '../../seed/grid_seed.dart';
 
 enum AssetEditMode { create, update }
 
@@ -149,8 +150,9 @@ class _LocationEditorState extends State<_LocationEditor> {
                     }
                   } on StateError catch (_) {
                     if (!context.mounted) return;
+                    final span = GridSeed.markerBlockSpan;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('다른 2×2 영역과 겹칠 수 없습니다.')),
+                      SnackBar(content: Text('다른 ${span}×$span 영역과 겹칠 수 없습니다.')),
                     );
                   }
                 },

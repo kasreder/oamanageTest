@@ -16,7 +16,7 @@ import '../model/drawing.dart';
   }
 }
 
-/// 주어진 위치를 마커 크기에 맞춰 정규화한 (row, col)을 반환합니다.
+/// 주어진 위치를 마커 크기를 고려해 경계 내로 정규화한 (row, col)을 반환합니다.
 /// - span 보다 작은 격자에서는 항상 (0,0)을 반환합니다.
 (int, int) normalizeBlockOrigin({
   required int row,
@@ -26,14 +26,14 @@ import '../model/drawing.dart';
   int span = Drawing.markerBlockSpan,
 }) {
   int _normalizeIndex(int value, int maxCount) {
-    if (maxCount <= span) {
+    final effectiveSpan = span <= 0 ? 1 : span;
+    if (maxCount <= effectiveSpan) {
       return 0;
     }
-    final maxStart = maxCount - span;
-    int clamped = value;
-    if (clamped < 0) clamped = 0;
-    if (clamped > maxStart) clamped = maxStart;
-    return (clamped ~/ span) * span;
+    final maxStart = maxCount - effectiveSpan;
+    if (value < 0) return 0;
+    if (value > maxStart) return maxStart;
+    return value;
   }
 
   return (_normalizeIndex(row, rows), _normalizeIndex(col, cols));

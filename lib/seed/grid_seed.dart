@@ -21,6 +21,7 @@ class GridSeed {
   static const double borderStrokeWidth = 2.0;
 
   /// ✅ 마커 스타일 (색상/투명도/테두리)
+  static const int markerBlockSpan = 2; // 마커가 차지하는 격자 크기 (행, 열)
   static const int markerColorHex = 0xFF7B61FF; // 기본 마커 배경색
   static const double markerOpacity = 1; // 일반 상태 불투명도
   static const double markerDraggingOpacity = 0.45; // 드래그 중 불투명도
