@@ -1,4 +1,8 @@
-// lib/view/screen/asset_list_screen.dart
+// File Path: lib/view/screen/asset_list_screen.dart
+// Features:
+// - AssetListScreen.createState (15행): 상태를 보존하기 위해 StatefulWidget로 리스트 화면을 구성합니다.
+// - _AssetListScreenState.build (30~104행): AssetProvider 데이터를 필터링하고 검색/카테고리 UI를 그립니다.
+// - ListTile.onTap (93~96행): context.push('/asset/:id')로 자산 상세 화면을 엽니다.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../provider/asset_provider.dart';

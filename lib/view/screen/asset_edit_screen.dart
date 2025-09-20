@@ -1,4 +1,8 @@
-// lib/view/screen/asset_edit_screen.dart
+// File Path: lib/view/screen/asset_edit_screen.dart
+// Features:
+// - AssetEditScreen.build (18~38행): 생성/수정 모드에 따라 안내 문구 또는 위치 편집기를 제공합니다.
+// - _LocationEditorState.build (67~195행): 도면 선택, 좌표 입력, 저장/해제 버튼 등 위치 편집 UI를 구성합니다.
+// - 저장 버튼 onPressed (134~155행): AssetProvider.setLocationAndSync 호출로 위치를 갱신하고 스낵바를 노출합니다.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../provider/asset_provider.dart';

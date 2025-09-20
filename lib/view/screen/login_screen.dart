@@ -1,3 +1,7 @@
+// File Path: lib/view/screen/login_screen.dart
+// Features:
+// - LoginScreen.build (18~39행): 로그인 화면 스캐폴드를 구성하고 입력 필드와 버튼을 배치합니다.
+// - FilledButton.onPressed (27~33행): 사용자 이름을 검증해 UserProvider.login 호출 후 이전 화면으로 돌아갑니다.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../provider/user_provider.dart';

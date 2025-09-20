@@ -1,3 +1,8 @@
+// File Path: lib/view/screen/home_screen.dart
+// Features:
+// - HomeScreen.build (16~39행): 홈 화면에 제목, 스캔 이동 버튼, 최근 스캔 기록 리스트를 배치합니다.
+// - 스캔 이동 버튼 onPressed (25행): go_router를 사용해 '/home/scan' 경로로 이동시킵니다.
+// - 최근 기록 출력부 (32~38행): ScanProvider.history 데이터를 최대 10개까지 표시합니다.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';

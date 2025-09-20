@@ -1,3 +1,8 @@
+// File Path: lib/view/screen/scan_screen.dart
+// Features:
+// - _ScanScreenState.build (58~188행): 카메라 프리뷰, 마스킹, 컨트롤 오버레이, 최근 스캔 정보를 포함한 스캔 UI를 구성합니다.
+// - _onWillPop (40~43행): 하드웨어 뒤로가기 입력 시 스캐너를 정지하고 현재 라우트를 종료합니다.
+// - MobileScanner.onDetect (85~101행): 감지한 바코드를 ScanProvider.record로 저장하고 재감지를 제어합니다.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';

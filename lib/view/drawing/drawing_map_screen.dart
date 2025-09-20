@@ -1,4 +1,8 @@
-// lib/view/drawing/drawing_map_screen.dart
+// File Path: lib/view/drawing/drawing_map_screen.dart
+// Features:
+// - _DrawingMapScreenState.build (46~118행): 도면 정보 헤더, 배율 드롭다운, 캔버스 위젯을 배치합니다.
+// - _DrawingCanvas.build (235~245행): 선택된 도면과 자산 데이터를 _GridOverlay에 전달합니다.
+// - _GridOverlayState.build (352~520행): InteractiveViewer에서 배경, 격자, 마커 드래그/드롭을 처리합니다.
 import 'dart:ui' as ui; // 이미지 원본 크기 확인
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -1,4 +1,8 @@
-// lib/view/drawing/drawing_screen.dart
+// File Path: lib/view/drawing/drawing_screen.dart
+// Features:
+// - DrawingScreen.build (22~88행): DrawingProvider에서 도면 목록을 읽어 카드 리스트와 범례를 렌더링합니다.
+// - 열기 버튼 onPressed (65~69행): 도면 이미지를 로드한 뒤 '/drawing/:id/map' 라우트로 이동합니다.
+// - _Legend.build (97~116행): 배경 여부를 나타내는 간단한 범례 UI를 구성합니다.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';

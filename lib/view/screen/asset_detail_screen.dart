@@ -1,4 +1,8 @@
-// lib/view/screen/asset_detail_screen.dart
+// File Path: lib/view/screen/asset_detail_screen.dart
+// Features:
+// - AssetDetailScreen.build (18~145행): Provider 데이터를 활용해 자산 상세 정보와 액션 버튼을 구성합니다.
+// - _AssetInfoDialogState.build (216~271행): 자산 필드 편집용 텍스트 입력 폼을 렌더링합니다.
+// - _LocationDialogState 저장 onPressed (356~377행): AssetProvider.setLocationAndSync로 위치를 저장합니다.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
