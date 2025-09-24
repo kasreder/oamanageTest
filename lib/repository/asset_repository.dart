@@ -18,9 +18,55 @@ class AssetRepository {
 
   Asset? getById(String id) => _items.where((e) => e.id == id).firstOrNull;
 
+  Asset? getByCode(String code) =>
+      _items.where((e) => e.code.toLowerCase() == code.toLowerCase()).firstOrNull;
+
   Asset create(Asset a) {
     _items.insert(0, a);
     return a;
+  }
+
+  Asset createFromSchema({
+    required String code,
+    required String name,
+    required String category,
+    required String serialNumber,
+    required String modelName,
+    required String vendor,
+    String? network,
+    String? normalComment,
+    String? oaComment,
+    String? macAddress,
+    String? building,
+    String? floor,
+    String? memberName,
+  }) {
+    final now = DateTime.now();
+    final asset = Asset(
+      id: _nextId(),
+      code: code,
+      name: name,
+      category: category,
+      serialNumber: serialNumber,
+      modelName: modelName,
+      vendor: vendor,
+      network: network,
+      physicalCheckDate: null,
+      confirmationDate: null,
+      normalComment: normalComment,
+      oaComment: oaComment,
+      macAddress: macAddress,
+      building: building,
+      floor: floor,
+      memberName: memberName,
+      locationDrawingId: null,
+      locationRow: null,
+      locationCol: null,
+      locationDrawingFile: null,
+      createdAt: now,
+      updatedAt: now,
+    );
+    return create(asset);
   }
 
   Asset? update(Asset a) {
@@ -53,6 +99,11 @@ class AssetRepository {
 
   // ───────────────────────────────────────────────────────────
   // Seed & Helpers
+
+  String _nextId() {
+    _idCounter += 1;
+    return _idCounter.toString();
+  }
 
   void _seed20() {
     final rnd = Random();
@@ -106,12 +157,6 @@ class AssetRepository {
     String _mac() {
       String hex() => rnd.nextInt(256).toRadixString(16).padLeft(2, '0');
       return '${hex()}-${hex()}-${hex()}-${hex()}-${hex()}-${hex()}';
-    }
-
-    // 오름차순 id 생성 ("1","2","3"...)
-    String _nextId() {
-      _idCounter += 1;
-      return _idCounter.toString();
     }
 
     // 기본 10개 프리셋

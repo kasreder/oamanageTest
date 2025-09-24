@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'route/app_router.dart';
 import 'provider/drawing_provider.dart';
 import 'provider/asset_provider.dart';
+import 'provider/asset_verification_provider.dart';
 import 'provider/list_provider.dart';
 import 'provider/scan_provider.dart';
 
@@ -24,6 +25,7 @@ class OAManagerApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => DrawingProvider()),
         ChangeNotifierProvider(create: (_) => AssetProvider()),
+        ChangeNotifierProvider(create: (_) => AssetVerificationProvider()),
         // 네비게이션 전환 시 게시판별 카운트를 갱신하는 ViewCountProvider
         ChangeNotifierProvider(create: (_) => ViewCountProvider()),
         ChangeNotifierProvider(create: (_) => ScanProvider()),

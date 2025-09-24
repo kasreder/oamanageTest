@@ -13,6 +13,8 @@ import '../view/screen/settings_screen.dart';
 import '../view/screen/login_screen.dart';
 import '../view/screen/member_screen.dart';
 import '../view/screen/scan_screen.dart';
+import '../view/screen/assets_signup_screen.dart';
+import '../view/screen/asset_verification_screen.dart';
 
 // 자산(게시판)
 import '../view/screen/asset_list_screen.dart';
@@ -171,6 +173,24 @@ final appRouter = GoRouter(
       ],
     ),
     // 공용
+    GoRoute(
+      path: '/news/assetsSignUp',
+      pageBuilder: (context, state) => NoTransitionPage(
+        child: ShellScaffold(
+          body: AssetsSignUpScreen(initialCode: state.uri.queryParameters['code']),
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/notice/assetVerification/:assetId',
+      pageBuilder: (context, state) => NoTransitionPage(
+        child: ShellScaffold(
+          body: AssetVerificationScreen(
+            assetId: state.pathParameters['assetId']!,
+          ),
+        ),
+      ),
+    ),
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(path: '/member', builder: (context, state) => const MemberScreen()),
   ],
