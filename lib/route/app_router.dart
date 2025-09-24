@@ -7,8 +7,8 @@ import '../view/widget/drawer.dart';
 import '../view/widget/scanned_footer.dart';
 
 import '../view/screen/home_screen.dart';
-import '../view/screen/free_screen.dart';
-import '../view/screen/record_screen.dart';
+import '../view/screen/asset_verification_overview_screen.dart';
+import '../view/screen/assets_signup_overview_screen.dart';
 import '../view/screen/settings_screen.dart';
 import '../view/screen/login_screen.dart';
 import '../view/screen/member_screen.dart';
@@ -111,26 +111,26 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        // 2) 자유
+        // 2) 실사 확인 페이지
         StatefulShellBranch(
           navigatorKey: _freeNavKey,
           routes: [
             GoRoute(
-              path: '/comm/free',
+              path: '/assetVerification',
               pageBuilder: (context, state) => const NoTransitionPage(
-                child: ShellScaffold(body: FreeScreen()),
+                child: ShellScaffold(body: AssetVerificationOverviewScreen()),
               ),
             ),
           ],
         ),
-        // 3) 기록
+        // 3) 유저리스트 페이지
         StatefulShellBranch(
           navigatorKey: _recordNavKey,
           routes: [
             GoRoute(
-              path: '/comm1/record',
+              path: '/assetsSignUp',
               pageBuilder: (context, state) => const NoTransitionPage(
-                child: ShellScaffold(body: RecordScreen()),
+                child: ShellScaffold(body: AssetsSignUpOverviewScreen()),
               ),
             ),
           ],

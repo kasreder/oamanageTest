@@ -64,14 +64,14 @@ class _BaseDrawerState extends State<BaseDrawer> {
             title: const Text('커뮤니티'),
             children: <Widget>[
               ListTile(
-                  title: const Text('-  자유게시판'),
+                  title: const Text('-  실사 확인 페이지'),
                   onTap: () {
-                    context.go('/comm/free', extra: UniqueKey());
+                    context.go('/assetVerification', extra: UniqueKey());
                   }),
               ListTile(
-                  title: const Text('-  기록/실험'),
+                  title: const Text('-  유저리스트 페이지'),
                   onTap: () {
-                    context.go('/comm1/record', extra: UniqueKey());
+                    context.go('/assetsSignUp', extra: UniqueKey());
                     Navigator.pop(context);
                   }),
             ],
