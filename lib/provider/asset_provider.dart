@@ -16,9 +16,46 @@ class AssetProvider extends ChangeNotifier {
 
   Asset? getById(String id) => repo.getById(id);
 
+  Asset? getByCode(String code) => repo.getByCode(code);
+
   void reload() {
     items = repo.list();
     notifyListeners();
+  }
+
+  Asset createAsset({
+    required String code,
+    required String name,
+    required String category,
+    required String serialNumber,
+    required String modelName,
+    required String vendor,
+    String? network,
+    String? normalComment,
+    String? oaComment,
+    String? macAddress,
+    String? building,
+    String? floor,
+    String? memberName,
+  }) {
+    final asset = repo.createFromSchema(
+      code: code,
+      name: name,
+      category: category,
+      serialNumber: serialNumber,
+      modelName: modelName,
+      vendor: vendor,
+      network: network,
+      normalComment: normalComment,
+      oaComment: oaComment,
+      macAddress: macAddress,
+      building: building,
+      floor: floor,
+      memberName: memberName,
+    );
+    items = repo.list();
+    notifyListeners();
+    return asset;
   }
 
   Asset? updateAsset(Asset asset) {
