@@ -7,7 +7,7 @@ import '../view/widget/drawer.dart';
 import '../view/widget/scanned_footer.dart';
 
 import '../view/screen/home_screen.dart';
-import '../view/screen/asset_verification_overview_screen.dart';
+import '../view/screen/asset_verification_list_screen.dart';
 import '../view/screen/assets_signup_overview_screen.dart';
 import '../view/screen/settings_screen.dart';
 import '../view/screen/login_screen.dart';
@@ -118,7 +118,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/assetVerification',
               pageBuilder: (context, state) => const NoTransitionPage(
-                child: ShellScaffold(body: AssetVerificationOverviewScreen()),
+                child: ShellScaffold(body: AssetVerificationListScreen()),
               ),
             ),
           ],
