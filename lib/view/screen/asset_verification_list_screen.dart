@@ -9,6 +9,28 @@ import '../../provider/asset_verification_provider.dart';
 
 enum _VerificationStatus { unverified, verified }
 
+enum _OrganizationLevel { headquarters, department, team }
+
+class _DropdownSpecialKeys {
+  static const String all = '__all__';
+  static const String unassigned = '__unassigned__';
+}
+
+class _DropdownOption {
+  const _DropdownOption(this.key, this.label);
+
+  final String key;
+  final String label;
+}
+
+class _OrganizationInfo {
+  const _OrganizationInfo({this.headquarters, this.department, this.team});
+
+  final String? headquarters;
+  final String? department;
+  final String? team;
+}
+
 class AssetVerificationListScreen extends StatefulWidget {
   const AssetVerificationListScreen({super.key});
 
@@ -20,7 +42,8 @@ class AssetVerificationListScreen extends StatefulWidget {
 class _AssetVerificationListScreenState
     extends State<AssetVerificationListScreen> {
   _VerificationStatus _status = _VerificationStatus.unverified;
-  String? _selectedCategory;
+  String _selectedCategoryKey = _DropdownSpecialKeys.all;
+  _OrganizationLevel _organizationLevel = _OrganizationLevel.team;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -36,10 +59,24 @@ class _AssetVerificationListScreenState
     final verifiedAssetIds =
         verificationProvider.items.map((e) => e.assetId).toSet();
 
-    final categories = {
-      for (final asset in assets) asset.category,
-    }.toList()
-      ..sort();
+    final verificationMap = {
+      for (final verification in verificationProvider.items)
+        verification.assetId: verification,
+    };
+
+    final organizationInfos = <String, _OrganizationInfo>{
+      for (final asset in assets)
+        asset.id: _extractOrganizationInfo(verificationMap[asset.id]?.team),
+    };
+
+    final categoryOptions = _buildCategoryOptions(
+      organizationInfos.values,
+      _organizationLevel,
+    );
+    final categoryKeys = categoryOptions.map((option) => option.key).toSet();
+    final selectedCategoryKey = categoryKeys.contains(_selectedCategoryKey)
+        ? _selectedCategoryKey
+        : _DropdownSpecialKeys.all;
 
     final query = _searchController.text.trim().toLowerCase();
 
@@ -52,8 +89,19 @@ class _AssetVerificationListScreenState
         return false;
       }
 
-      if (_selectedCategory != null && asset.category != _selectedCategory) {
-        return false;
+      final organizationValue = _organizationValueForLevel(
+        organizationInfos[asset.id],
+        _organizationLevel,
+      );
+
+      if (selectedCategoryKey == _DropdownSpecialKeys.unassigned) {
+        if (organizationValue != null && organizationValue.trim().isNotEmpty) {
+          return false;
+        }
+      } else if (selectedCategoryKey != _DropdownSpecialKeys.all) {
+        if (organizationValue != selectedCategoryKey) {
+          return false;
+        }
       }
 
       if (query.isNotEmpty) {
@@ -87,8 +135,16 @@ class _AssetVerificationListScreenState
               Expanded(child: _buildSearchField()),
               const SizedBox(width: 12),
               SizedBox(
+                width: 160,
+                child: _buildOrganizationLevelSelector(),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
                 width: 200,
-                child: _buildCategoryDropdown(categories),
+                child: _buildCategoryDropdown(
+                  categoryOptions,
+                  selectedCategoryKey,
+                ),
               ),
             ],
           ),
@@ -143,28 +199,60 @@ class _AssetVerificationListScreenState
     );
   }
 
-  Widget _buildCategoryDropdown(List<String> categories) {
-    final options = ['전체', ...categories];
-    final value = _selectedCategory ?? '전체';
+  Widget _buildCategoryDropdown(
+    List<_DropdownOption> options,
+    String selectedKey,
+  ) {
+    final isDisabled = options.length <= 1;
     return DropdownButtonFormField<String>(
-      value: value,
+      value: selectedKey,
       decoration: const InputDecoration(
         labelText: '분류',
         border: OutlineInputBorder(),
         isDense: true,
       ),
       items: options
-          .map((category) => DropdownMenuItem(
-                value: category,
-                child: Text(category),
-              ))
+          .map(
+            (option) => DropdownMenuItem(
+              value: option.key,
+              child: Text(option.label),
+            ),
+          )
           .toList(),
-      onChanged: (newValue) {
-        setState(() {
-          _selectedCategory = newValue == null || newValue == '전체'
-              ? null
-              : newValue;
-        });
+      onChanged: isDisabled
+          ? null
+          : (newValue) {
+              setState(() {
+                _selectedCategoryKey =
+                    newValue ?? _DropdownSpecialKeys.all;
+              });
+            },
+    );
+  }
+
+  Widget _buildOrganizationLevelSelector() {
+    return DropdownButtonFormField<_OrganizationLevel>(
+      value: _organizationLevel,
+      decoration: const InputDecoration(
+        labelText: '분류 기준',
+        border: OutlineInputBorder(),
+        isDense: true,
+      ),
+      items: _OrganizationLevel.values
+          .map(
+            (level) => DropdownMenuItem(
+              value: level,
+              child: Text(_labelForOrganizationLevel(level)),
+            ),
+          )
+          .toList(),
+      onChanged: (newLevel) {
+        if (newLevel != null) {
+          setState(() {
+            _organizationLevel = newLevel;
+            _selectedCategoryKey = _DropdownSpecialKeys.all;
+          });
+        }
       },
     );
   }
@@ -249,5 +337,104 @@ class _AssetVerificationListScreenState
 
   String _formatDate(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  List<_DropdownOption> _buildCategoryOptions(
+    Iterable<_OrganizationInfo> infos,
+    _OrganizationLevel level,
+  ) {
+    final labels = <String>{};
+    var hasUnassigned = false;
+
+    for (final info in infos) {
+      final value = _organizationValueForLevel(info, level);
+      if (value == null || value.trim().isEmpty) {
+        hasUnassigned = true;
+      } else {
+        labels.add(value);
+      }
+    }
+
+    final sortedLabels = labels.toList()..sort();
+    final options = <_DropdownOption>[
+      const _DropdownOption(_DropdownSpecialKeys.all, '전체'),
+      ...sortedLabels.map((label) => _DropdownOption(label, label)),
+    ];
+
+    if (hasUnassigned) {
+      options.add(const _DropdownOption(_DropdownSpecialKeys.unassigned, '미지정'));
+    }
+
+    return options;
+  }
+
+  _OrganizationInfo _extractOrganizationInfo(String? rawTeam) {
+    if (rawTeam == null || rawTeam.trim().isEmpty) {
+      return const _OrganizationInfo();
+    }
+
+    final normalized = rawTeam
+        .replaceAll(RegExp(r'[>/\\|]'), ' ')
+        .split(RegExp(r'\s+'))
+        .where((part) => part.trim().isNotEmpty)
+        .toList();
+
+    String? headquarters;
+    String? department;
+    String? team;
+
+    for (final part in normalized) {
+      final value = part.trim();
+      if (value.isEmpty) continue;
+      if (value.endsWith('본부') && headquarters == null) {
+        headquarters = value;
+      } else if (value.endsWith('실') && department == null) {
+        department = value;
+      } else if (value.endsWith('팀') && team == null) {
+        team = value;
+      }
+    }
+
+    if (team == null && normalized.isNotEmpty) {
+      team = normalized.last;
+    }
+    if (department == null && normalized.length >= 2) {
+      department = normalized[normalized.length - 2];
+    }
+    if (headquarters == null && normalized.length >= 3) {
+      headquarters = normalized[normalized.length - 3];
+    }
+
+    return _OrganizationInfo(
+      headquarters: headquarters,
+      department: department,
+      team: team,
+    );
+  }
+
+  String? _organizationValueForLevel(
+    _OrganizationInfo? info,
+    _OrganizationLevel level,
+  ) {
+    if (info == null) return null;
+    switch (level) {
+      case _OrganizationLevel.headquarters:
+        return info.headquarters;
+      case _OrganizationLevel.department:
+        return info.department;
+      case _OrganizationLevel.team:
+        return info.team;
+    }
+  }
+
+  String _labelForOrganizationLevel(_OrganizationLevel level) {
+    switch (level) {
+      case _OrganizationLevel.headquarters:
+        return '본부';
+      case _OrganizationLevel.department:
+        return '실';
+      case _OrganizationLevel.team:
+        return '팀';
+    }
   }
 }
