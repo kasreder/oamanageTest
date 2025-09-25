@@ -9,15 +9,15 @@ class DrawingRepository {
 
   DrawingRepository() {
     final now = DateTime.now();
-    final List<(String, String, String, String?)> seeds = [
-      ('HQ',      '1F', 'HQ 1층 공용구역',   null),
-      ('HQ',      '2F', 'HQ 2층 사무실',     '좌측 구역은 미사용'),
-      ('R&D',     'B1', 'R&D 지하 설비실',   null),
-      ('R&D',     '3F', 'R&D 3층 테스트랩',  '고전압 주의'),
-      ('Factory', '1F', '생산동 1층',        null),
-      ('Factory', '2F', '생산동 2층',        '라인 B 공사중'),
-      ('Office', '11F', 'conco',        '사무공간'),
-      ('Office', '16F', 'hankyung',        '사무공간'),
+    final List<(String, String, String,String?)> seeds = [
+      ('본사','1F','전기실',null),
+      ('서울CRM','2F','전기실',null),
+      ('부산CRM','3F','휴게실',null),
+      ('발급실', '4F','작업공간',null),
+      ('지점','5F','업무공간','광화문'),
+      ('카드센터', '6F','사무공간','건대입구'),
+      ('콜렉션센터','7F','사무공간',null),
+      ('개발실', '8F','사무공간',null),
     ];
     int i = 1;
     for (final s in seeds) {
