@@ -85,10 +85,32 @@ class _AssetListScreenState extends State<AssetListScreen> {
                       final locText = hasLoc
                           ? '위치: ${a.building ?? ''}, ${a.floor ?? ''} (${a.locationRow}, ${a.locationCol})'
                           : '위치: 미지정';
+                      final info = [
+                        '코드: ${a.code}',
+                        '명칭: ${a.name}',
+                        '분류: ${a.category}',
+                        if ((a.memberName ?? '').trim().isNotEmpty)
+                          '사용자: ${a.memberName!.trim()}',
+                        '제조사: ${a.vendor}',
+                        '모델: ${a.modelName}',
+                        if ((a.network ?? '').trim().isNotEmpty)
+                          '네트워크: ${a.network!.trim()}',
+                        if ((a.building ?? '').trim().isNotEmpty)
+                          '건물: ${a.building!.trim()}',
+                        if ((a.floor ?? '').trim().isNotEmpty)
+                          '층: ${a.floor!.trim()}',
+                        if ((a.normalComment ?? '').trim().isNotEmpty)
+                          '비고: ${a.normalComment!.trim()}',
+                        locText,
+                      ];
+
                       return ListTile(
                         leading: const Icon(Icons.inventory_2),
-                        title: Text(a.name),
-                        subtitle: Text('코드: ${a.code}  ·  분류: ${a.category}  ·  $locText'),
+                        title: Text(
+                          info.join('  ·  '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           // 상세로 이동: /asset/:id (app_router에 이미 정의)
